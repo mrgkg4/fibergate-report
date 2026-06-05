@@ -1,0 +1,49 @@
+# ---- LaTeX build artifacts ----
+*.aux
+*.log
+*.out
+*.toc
+*.lof
+*.lot
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+*.synctex(busy)
+*.bbl
+*.blg
+*.bcf
+*.run.xml
+*.idx
+*.ind
+*.ilg
+*.glo
+*.gls
+*.glg
+*.acn
+*.acr
+*.alg
+*.xdy
+
+# minitoc / mini-table-of-contents
+*.mtc*
+*.maf
+*.ptc
+*.stc*
+*.slf*
+*.slt*
+
+# beamer / misc
+*.nav
+*.snm
+*.vrb
+
+# minted cache (if ever re-enabled)
+_minted*/
+*.pyg
+
+# editor / OS
+.DS_Store
+Thumbs.db
+
+# Built PDF (regenerated locally; uncomment the next line to keep it OUT of git)
+main.pdf

@@ -1,0 +1,77 @@
+% @Author: KHALIL GUETTAT
+% @Date:   09/06/2026
+
+\documentclass[12pt, oneside, a4paper]{Enetcom-PFE-Report-dissertation}
+% \usepackage[inkscapelatex=false]{svg}  % disabled: needs Inkscape + -shell-escape. No \includesvg is used (all figures are PNG).
+
+% Path to your image folder
+\graphicspath{{images/}}
+
+\input{images/Commands}
+
+\hypersetup{
+  pdftitle={\reportTitle~-~\reportSubject},%
+  pdfauthor={\reportAuthor},%
+  pdfsubject={\reportSubject},%
+  pdfkeywords={Report} {Internship} {PFE} {ENETCOM}{University Sfax}{Tunisia} {Memory} {Dissertation}}
+\dominitoc
+
+\begin{document}
+    \input{chapter/00-CoverPage}
+    \doublespacing{}% Double spacing between lines
+    \pagenumbering{roman}% i ii iii iv ...
+    
+    \input{chapter/01-Dedication}
+
+    \input{chapter/02-Acknowledgement}
+   
+    \addtocontents{toc}{\protect\thispagestyle{MyStyle}}
+    \renewcommand*\contentsname{TABLE OF CONTENTS}
+    \begin{spacing}{1}
+    \tableofcontents
+    \end{spacing}
+
+    \addtocontents{lof}{\protect\thispagestyle{MyStyle}}
+    \renewcommand{\listfigurename}{LIST OF FIGURES}
+    \begin{spacing}{1}
+    \listoffigures
+    \end{spacing}
+    \addcontentsline{toc}{chapter}{\listfigurename}
+    \adjustmtc
+    
+    % Include the external file that contains the list of tables
+    \input{chapter/04-List of tables}
+    \addcontentsline{toc}{chapter}{\listtablename}
+    \adjustmtc
+
+    \doublespacing{}% Double spacing between lines
+
+    \input{chapter/03-ListOfAbr}
+    
+    \input{chapter/05-GeneralIntroduction}
+
+    \pagenumbering{arabic}% 1 2 3 4 5
+    \doublespacing{}% Double spacing between lines
+    
+    \input{chapter/06-Chapter1}
+
+    \input{chapter/07-Chapter2}
+
+    \input{chapter/08-Chapter3}
+
+    \input{chapter/08a-Chapter4}
+
+    \input{chapter/08b-Chapter5}
+
+    \input{chapter/08c-Chapter6}
+
+    \input{chapter/09-GeneralConclusion}
+
+    \input{chapter/10-Bibliography}
+
+    \appendix
+    \input{chapter/11-Appendices}
+    
+    \input{chapter/12-Back_of_Report}
+    
+\end{document}

@@ -1,0 +1,36 @@
+{
+  // ---- LaTeX Workshop build configuration ----
+  // Three pdflatex passes settle minitoc + Table of Contents + List of Figures/Tables.
+  // -shell-escape is harmless here (minted is disabled) but keeps things working if you re-enable it.
+  "latex-workshop.latex.tools": [
+    {
+      "name": "pdflatex",
+      "command": "pdflatex",
+      "args": [
+        "-shell-escape",
+        "-synctex=1",
+        "-interaction=nonstopmode",
+        "-file-line-error",
+        "%DOC%"
+      ]
+    }
+  ],
+  "latex-workshop.latex.recipes": [
+    {
+      "name": "pdflatex x3",
+      "tools": ["pdflatex", "pdflatex", "pdflatex"]
+    }
+  ],
+  "latex-workshop.latex.recipe.default": "pdflatex x3",
+
+  // Keep the project tidy: remove aux files after a successful build, keep the PDF.
+  "latex-workshop.latex.autoClean.run": "onBuilt",
+  "latex-workshop.latex.clean.fileTypes": [
+    "*.aux", "*.bbl", "*.blg", "*.idx", "*.ind", "*.lof", "*.lot", "*.out",
+    "*.toc", "*.fls", "*.fdb_latexmk", "*.synctex.gz", "*.mtc*", "*.maf",
+    "*.ptc", "*.run.xml", "*.bcf"
+  ],
+
+  "latex-workshop.view.pdf.viewer": "tab",
+  "files.eol": "\n"
+}
