@@ -417,7 +417,7 @@ A close look at the predictions on the test set reveals three failure modes that
 
 To turn this uneven performance into a controlled behaviour in production, a confidence-based routing policy is applied at inference time. For fields whose test-set F1 is 0.70 or above, predictions are sent directly to the workflow if the mean per-token softmax confidence is above 0.60; otherwise they are shown to the consultant as a draft to review. For fields whose test-set F1 is below 0.70, every prediction is routed to manual verification, regardless of the confidence value. The effect of this policy is to turn the bimodal performance profile into a smooth degradation at the application level: the strongest fields are fully automated, the middle ones are pre-filled and reviewed, and the weakest ones stay under human control until the lifecycle activities of Section 5.6.2 raise them above the threshold.
 
-The two operating points of this policy --- the field-level F1 gate (0.70) and the per-token confidence gate (0.60) --- were both calibrated on the validation partition. Table~5.10a reports the confidence-gate sweep for the fields eligible for automation (F1 $\geq$ 0.70), measuring, at each candidate threshold, the share of predictions accepted without review (automation rate) and the precision of those accepted predictions. A 0.60 gate keeps acceptance precision above 0.97 while still automating roughly four predictions in five; lowering it to 0.50 raises automation but lets through erroneous spans, whereas raising it to 0.70 sacrifices automation for a negligible precision gain. The 0.70 F1 admission threshold was fixed in the same way: it is the lowest field-level F1 at which accepted-prediction precision remained above 0.95 across the validation fields.
+The two operating points of this policy (the field-level F1 gate at 0.70 and the per-token confidence gate at 0.60) were both calibrated on the validation partition. Table~5.10a reports the confidence-gate sweep for the fields eligible for automation (F1 $\geq$ 0.70), measuring, at each candidate threshold, the share of predictions accepted without review (automation rate) and the precision of those accepted predictions. A 0.60 gate keeps acceptance precision above 0.97 while still automating roughly four predictions in five; lowering it to 0.50 raises automation but lets through erroneous spans, whereas raising it to 0.70 sacrifices automation for a negligible precision gain. The 0.70 F1 admission threshold was fixed in the same way: it is the lowest field-level F1 at which accepted-prediction precision remained above 0.95 across the validation fields.
 
 \begin{table}[H]
   \centering
@@ -460,7 +460,7 @@ Both modules were kept from the proof of concept without changes. The correctnes
 \begin{figure}[H]
   \centering
   \includegraphics[width=0.52\textwidth,max width=\textwidth]{images/image68.png}
-  \caption{![][image69]}
+  \caption{\textit{\textbf{Figure 5.14.} CMS pre-fill generation}}
   \label{fig:image68}
 \end{figure}
 

@@ -15,7 +15,7 @@ The platform is a three-tier web application: an Angular SPA (port 4200), a Spri
 
 \begin{figure}[H]
   \centering
-  \fbox{\parbox[c][5cm]{0.55\textwidth}{\centering\itshape Placeholder --- Figure 6.1\\Global system architecture diagram: Angular SPA, Spring Boot orchestration layer, FastAPI execution tier, and Microsoft 365 connections via Power Automate / Graph API}}
+  \fbox{\parbox[c][5cm]{0.55\textwidth}{\centering\itshape Placeholder: Figure 6.1\\Global system architecture diagram: Angular SPA, Spring Boot orchestration layer, FastAPI execution tier, and Microsoft 365 connections via Power Automate / Graph API}}
   \caption{Global system architecture}
   \label{fig:architecture}
 \end{figure}
@@ -30,7 +30,7 @@ The frontend is an Angular 17 SPA with a component-driven architecture: each fun
 
 \begin{figure}[H]
   \centering
-  \fbox{\parbox[c][5cm]{0.5\textwidth}{\centering\itshape Placeholder --- Screenshot\\Angular operator dashboard (role-adapted view)}}
+  \fbox{\parbox[c][5cm]{0.5\textwidth}{\centering\itshape Placeholder: Screenshot\\Angular operator dashboard (role-adapted view)}}
   \caption{FiberGate operator dashboard interface}
   \label{fig:dashboard-screenshot}
 \end{figure}
@@ -43,7 +43,7 @@ The service integration layer decouples Angular from the execution backends thro
 
 \begin{figure}[H]
   \centering
-  \fbox{\parbox[c][4.5cm]{0.55\textwidth}{\centering\itshape Placeholder --- Figure 6.2\\Sequence diagram: asynchronous job submission flow (Angular $\rightarrow$ Spring Boot $\rightarrow$ FastAPI $\rightarrow$ polling)}}
+  \fbox{\parbox[c][4.5cm]{0.55\textwidth}{\centering\itshape Placeholder: Figure 6.2\\Sequence diagram: asynchronous job submission flow (Angular $\rightarrow$ Spring Boot $\rightarrow$ FastAPI $\rightarrow$ polling)}}
   \caption{Asynchronous job submission and polling sequence}
   \label{fig:job-sequence}
 \end{figure}
@@ -54,7 +54,7 @@ The platform uses a PostgreSQL database under Liquibase migrations, organised in
 
 \begin{figure}[H]
   \centering
-  \fbox{\parbox[c][5.5cm]{0.6\textwidth}{\centering\itshape Placeholder --- Figure 6.3\\Entity-relationship diagram of the five schema groups (identity, jobs, dossiers, audit, configuration)}}
+  \fbox{\parbox[c][5.5cm]{0.6\textwidth}{\centering\itshape Placeholder: Figure 6.3\\Entity-relationship diagram of the five schema groups (identity, jobs, dossiers, audit, configuration)}}
   \caption{Relational database schema overview}
   \label{fig:db-schema}
 \end{figure}
@@ -69,7 +69,7 @@ The module implements a stateless JWT session model: on login, Spring Boot verif
 
 \begin{figure}[H]
   \centering
-  \fbox{\parbox[c][4.5cm]{0.45\textwidth}{\centering\itshape Placeholder --- Screenshot\\Login / authentication screen}}
+  \fbox{\parbox[c][4.5cm]{0.45\textwidth}{\centering\itshape Placeholder: Screenshot\\Login / authentication screen}}
   \caption{Authentication screen}
   \label{fig:login-screenshot}
 \end{figure}
@@ -80,7 +80,7 @@ Available only to the SDM role, this module provides a searchable user table wit
 
 \begin{figure}[H]
   \centering
-  \fbox{\parbox[c][4.5cm]{0.5\textwidth}{\centering\itshape Placeholder --- Screenshot\\User and role administration console}}
+  \fbox{\parbox[c][4.5cm]{0.5\textwidth}{\centering\itshape Placeholder: Screenshot\\User and role administration console}}
   \caption{Administration console}
   \label{fig:admin-screenshot}
 \end{figure}
@@ -91,7 +91,7 @@ The main interface for Pilots, this dashboard presents one panel per SENTINEL ag
 
 \begin{figure}[H]
   \centering
-  \fbox{\parbox[c][5cm]{0.55\textwidth}{\centering\itshape Placeholder --- Screenshot\\Automation monitoring dashboard with per-agent panels and live log view}}
+  \fbox{\parbox[c][5cm]{0.55\textwidth}{\centering\itshape Placeholder: Screenshot\\Automation monitoring dashboard with per-agent panels and live log view}}
   \caption{Automation monitoring and control dashboard}
   \label{fig:automation-dashboard-screenshot}
 \end{figure}
@@ -102,7 +102,7 @@ The primary Consultant workspace: when a dossier is analysed, the FiberGate AI S
 
 \begin{figure}[H]
   \centering
-  \fbox{\parbox[c][5.5cm]{0.6\textwidth}{\centering\itshape Placeholder --- Screenshot\\AI results review interface: extracted fields, confidence indicators, completeness verdict}}
+  \fbox{\parbox[c][5.5cm]{0.6\textwidth}{\centering\itshape Placeholder: Screenshot\\AI results review interface: extracted fields, confidence indicators, completeness verdict}}
   \caption{AI results review interface}
   \label{fig:ai-review-screenshot}
 \end{figure}
@@ -113,7 +113,7 @@ The audit module gives the SDM a chronological, filterable log of every state-ch
 
 \begin{figure}[H]
   \centering
-  \fbox{\parbox[c][4.5cm]{0.5\textwidth}{\centering\itshape Placeholder --- Screenshot\\Audit trail and system health panel}}
+  \fbox{\parbox[c][4.5cm]{0.5\textwidth}{\centering\itshape Placeholder: Screenshot\\Audit trail and system health panel}}
   \caption{Audit trail and system administration panel}
   \label{fig:audit-screenshot}
 \end{figure}
@@ -132,7 +132,7 @@ Three roles map directly to the unit's operational actors: \textbf{Consultant} (
 
 \begin{figure}[H]
   \centering
-  \fbox{\parbox[c][4.5cm]{0.55\textwidth}{\centering\itshape Placeholder --- Figure 6.4\\Role-based access control matrix: Consultant / Pilot / SDM permissions across modules and enforcement layers}}
+  \fbox{\parbox[c][4.5cm]{0.55\textwidth}{\centering\itshape Placeholder: Figure 6.4\\Role-based access control matrix: Consultant / Pilot / SDM permissions across modules and enforcement layers}}
   \caption{RBAC permission matrix}
   \label{fig:rbac-matrix}
 \end{figure}
@@ -149,7 +149,7 @@ The deployment target evolved from the VM/App-Service design of Section~3.4 to a
 
 \begin{figure}[H]
   \centering
-  \fbox{\parbox[c][5.5cm]{0.6\textwidth}{\centering\itshape Placeholder --- Figure 6.5\\Azure deployment topology: Container Apps environments, VNet, managed PostgreSQL, Blob Storage, and Microsoft 365 connectivity}}
+  \fbox{\parbox[c][5.5cm]{0.6\textwidth}{\centering\itshape Placeholder: Figure 6.5\\Azure deployment topology: Container Apps environments, VNet, managed PostgreSQL, Blob Storage, and Microsoft 365 connectivity}}
   \caption{Azure cloud deployment architecture}
   \label{fig:azure-architecture}
 \end{figure}
@@ -174,7 +174,7 @@ Source control, build automation, and release management are split across GitHub
 
 \begin{figure}[H]
   \centering
-  \fbox{\parbox[c][5cm]{0.6\textwidth}{\centering\itshape Placeholder --- Figure 6.6\\CI/CD pipeline diagram: GitHub Actions build/test stages $\rightarrow$ Azure DevOps release pipeline $\rightarrow$ Dev / Staging / Production promotion}}
+  \fbox{\parbox[c][5cm]{0.6\textwidth}{\centering\itshape Placeholder: Figure 6.6\\CI/CD pipeline diagram: GitHub Actions build/test stages $\rightarrow$ Azure DevOps release pipeline $\rightarrow$ Dev / Staging / Production promotion}}
   \caption{CI/CD pipeline and environment promotion flow}
   \label{fig:cicd-pipeline}
 \end{figure}
@@ -203,7 +203,7 @@ The platform connects the three SENTINEL agents, the FiberGate AI Service, and t
 
 \begin{figure}[H]
   \centering
-  \fbox{\parbox[c][5.5cm]{0.6\textwidth}{\centering\itshape Placeholder --- Figure 6.7\\Ecosystem integration diagram: SENTINEL agents, AI Service, Spring Boot/FastAPI proxy layer, and Microsoft 365 (SharePoint, Planner, Exchange, Graph API)}}
+  \fbox{\parbox[c][5.5cm]{0.6\textwidth}{\centering\itshape Placeholder: Figure 6.7\\Ecosystem integration diagram: SENTINEL agents, AI Service, Spring Boot/FastAPI proxy layer, and Microsoft 365 (SharePoint, Planner, Exchange, Graph API)}}
   \caption{Ecosystem integration architecture}
   \label{fig:ecosystem-integration}
 \end{figure}
@@ -226,7 +226,7 @@ The integrations combine into a complete LOC PAR lifecycle: Agent 1 detects the 
 
 \begin{figure}[H]
   \centering
-  \fbox{\parbox[c][5cm]{0.6\textwidth}{\centering\itshape Placeholder --- Figure 6.8\\End-to-end workflow diagram: from Agilis/GedAffaire email or PAR batch to Planner task and Agilis-ready Excel artefact}}
+  \fbox{\parbox[c][5cm]{0.6\textwidth}{\centering\itshape Placeholder: Figure 6.8\\End-to-end workflow diagram: from Agilis/GedAffaire email or PAR batch to Planner task and Agilis-ready Excel artefact}}
   \caption{End-to-end integrated business workflow}
   \label{fig:e2e-workflow}
 \end{figure}
@@ -274,7 +274,7 @@ The largest gain is in POI validation: a sequence that took a consultant 15--20 
 
 \begin{figure}[H]
   \centering
-  \fbox{\parbox[c][4.5cm]{0.55\textwidth}{\centering\itshape Placeholder --- Figure 6.9\\Bar chart: per-task processing time before vs.\ after automation, by workflow}}
+  \fbox{\parbox[c][4.5cm]{0.55\textwidth}{\centering\itshape Placeholder: Figure 6.9\\Bar chart: per-task processing time before vs.\ after automation, by workflow}}
   \caption{Before/after processing-time comparison}
   \label{fig:impact-chart}
 \end{figure}

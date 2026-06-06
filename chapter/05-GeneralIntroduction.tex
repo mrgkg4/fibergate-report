@@ -2,107 +2,16 @@
 \addcontentsline{toc}{chapter}{General Introduction}
 \thispagestyle{MyStyle}
 
-The deployment of fiber optic infrastructure across France represents one of the most
-consequential technological transitions in contemporary telecommunications. Driven by
-the national \textit{Plan France Tr\`es Haut D\'ebit} and governed by the regulatory
-framework established by ARCEP, the rollout of FTTX networks under the GPON standard has
-created an operational landscape of unprecedented scale and complexity. Orange France,
-as the incumbent infrastructure operator, manages the connection of millions of premises
-through a hierarchical node chain spanning the OLT at the central office, through the
-NRO, SRO, and PAR distribution nodes, down to the subscriber terminal. At each level of
-this hierarchy, engineering decisions must be made, documents must be validated, and
-workflows must be coordinated across organizational boundaries and contractual
-deadlines. The administrative processing of these workflows --- invisible to the end
-subscriber but critical to the operator --- constitutes the daily operational reality of
-the \textit{Guichet OI: PAR France} unit of Orange France, the environment in which this
-project was conducted.
+The deployment of fiber optic infrastructure across France, driven by the \textit{Plan France Tr\`es Haut D\'ebit} and ARCEP's regulatory framework, has created a large-scale FTTX/GPON deployment landscape. Orange France manages millions of premise connections through a hierarchical OLT/NRO/SRO/PAR/subscriber-terminal chain, whose administrative workflows form the daily reality of the \textit{Guichet OI: PAR France} unit.
 
-The Guichet OI unit operates under the OSA service model, handling fiber connection
-requests from initial PAR localization through completeness verification, POI validation,
-CAFF return routing, and daily dossier distribution. Fifteen consultants process
-approximately 112 dossiers per day using nine disconnected tools --- Agilis, SharePoint,
-Microsoft Planner, Banbou, Georeso, Gedaffaires, Optimum, Elimap, and Alcatraz --- none
-of which share a common data layer or event bus. The consequence of this fragmentation is
-structural: consultants spend an estimated 55 percent of their working time on tasks that
-are deterministic, rule-based, and reproducible, yet entirely manual. POI validation
-emails are processed one by one, each requiring fifteen to twenty minutes of field
-extraction, SharePoint updates, and Planner task creation. CAFF returns arriving after
-business hours go unrouted until the following morning, systematically breaching the
-one-working-day contractual KPI. The daily task distribution routine consumes thirty to
-forty-five minutes of the Pilot's time without any mechanism for cross-day fairness or
-continuity of treatment. And the LOC PAR completeness verification workflow --- the most
-cognitively demanding of the four --- requires a consultant to manually read, classify,
-and extract structured field values from multi-page administrative PDF dossiers, a process
-taking fifteen to thirty minutes per file with error rates that increase under workload
-pressure.
+The unit's fifteen consultants process roughly 112 dossiers per day across nine disconnected tools (Agilis, SharePoint, Microsoft Planner, and others) sharing no common data layer. An estimated 55 percent of consultant time goes to deterministic, rule-based, yet entirely manual tasks: POI validation takes fifteen to twenty minutes per email; CAFF returns received after hours go unrouted, breaching the one-working-day contractual KPI; daily distribution consumes thirty to forty-five minutes with no cross-day fairness mechanism; and LOC PAR completeness verification needs fifteen to thirty minutes of manual reading and field extraction per dossier.
 
-This Final Year Project, conducted within Amaris Consulting and embedded in the Guichet
-OI: PAR France unit, was born from direct observation of these inefficiencies. Two
-engineering interns occupied a dual role throughout the twenty-five weeks of the
-engagement: they participated in the production workflow as operational consultants while
-simultaneously designing and building the automation ecosystem intended to replace the
-most repetitive and error-prone dimensions of that workflow. This configuration shaped
-every technical decision documented in this report. The solution that emerged is the
-\textbf{FiberGate Ecosystem}, an integrated three-pillar architecture that combines
-robotic process automation, multimodal document intelligence, and a governed enterprise
-web platform.
+This Final Year Project, conducted within Amaris Consulting and embedded in the Guichet OI: PAR France unit, was born from twenty-five weeks of dual fieldwork as both operational consultants and system architects. The result is the \textbf{FiberGate Ecosystem}, an integrated three-pillar architecture combining robotic process automation, multimodal document intelligence, and a governed enterprise web platform.
 
-The first pillar, the \textbf{SENTINEL Automation Fleet}, comprises three Python agents
-built on the \texttt{exchangelib} EWS/NTLM library for direct Exchange Server access,
-orchestrated through a FastAPI asynchronous execution layer, and integrated with
-Microsoft 365 via Power Automate cloud flows triggered through authenticated HTTPS
-webhooks. Agent~1 automates POI validation email processing through a six-field regular
-expression extraction engine dispatching a structured JSON payload to a seven-step Power
-Automate flow that updates SharePoint SUIVI and creates an assigned Planner task. Agent~2
-automates CAFF return routing through a single-pattern OEIE identifier extraction and an
-atomic Power Automate flow invocation guaranteeing immediate consultant assignment.
-Agent~3 automates daily dossier distribution through a six-step pandas pipeline
-implementing a continuity-first round-robin algorithm with persistent index state,
-cross-referencing two Planner exports and the Full PAR France Agilis workbook to produce
-a formatted three-sheet \texttt{openpyxl} output before dispatching individual Power
-Automate webhooks per task row.
+The \textbf{SENTINEL Automation Fleet} comprises three Python agents built on the \texttt{exchangelib} EWS/NTLM library, orchestrated through a FastAPI asynchronous execution layer, and integrated with Microsoft 365 via authenticated Power Automate webhooks. Agent~1 automates POI validation through six-field regular-expression extraction dispatched to a seven-step SharePoint SUIVI/Planner flow; Agent~2 automates CAFF return routing through single-pattern OEIE identification and an atomic Power Automate flow guaranteeing immediate assignment; Agent~3 automates daily dossier distribution through a continuity-first round-robin pandas pipeline producing a three-sheet \texttt{openpyxl} workbook and per-task webhooks.
 
-The second pillar, the \textbf{FiberGate AI Service}, addresses the LOC PAR completeness
-verification workflow through a LayoutLMv3 multimodal transformer pipeline. LayoutLMv3,
-developed by Microsoft Research and published in 2022, processes text tokens,
-two-dimensional bounding box coordinates from Tesseract~5 OCR, and image patches in a
-unified self-attention architecture trained with Masked Language Modelling and Masked
-Image Modelling objectives. The service implements a two-head fine-tuning strategy: a
-sequence classification head for six-class document categorization and a token
-classification head using BIO sequence labeling for structured field extraction across
-twelve field types (a twenty-five-label BIO space). A confidence-gated deployment policy routes uncertain field
-extractions to a human review queue rather than accepting them silently, preserving audit
-integrity in a regulated administrative environment.
+The \textbf{FiberGate AI Service} addresses the LOC PAR completeness verification workflow with a LayoutLMv3 multimodal transformer (Microsoft Research, 2022) fine-tuned through a two-head strategy combining six-class sequence classification and BIO token classification for twelve-field structured extraction. A confidence-gated policy routes uncertain extractions to human review, preserving audit integrity in this regulated environment.
 
-The third pillar, the \textbf{Unified Platform}, integrates the SENTINEL Fleet and the AI
-Service under a single Angular~17 single-page application communicating with a Spring
-Boot~3.2.4 RESTful backend over JWT-authenticated HTTPS. The backend implements a
-hexagonally-influenced three-layer architecture with Spring Data JPA persistence to a
-managed PostgreSQL database accessed through a private endpoint, Spring Security role-based
-access control enforced at both route and method levels, and a FastAPI proxy layer that
-exposes the Python agents as asynchronous background jobs retrievable by UUID. The platform is
-deployed on Azure Container Apps within a Virtual Network with NSG boundary rules,
-provisioned through a GitHub Actions and Azure DevOps CI/CD pipeline implementing
-blue-green revision swapping for zero-downtime releases.
+The \textbf{Unified Platform} integrates both pillars in an Angular~17/Spring Boot~3.2.4/PostgreSQL stack with JWT-secured RBAC and a FastAPI proxy for the agents' background jobs, deployed on Azure Container Apps via GitHub Actions/Azure DevOps CI/CD with blue-green releases.
 
-Unless an explicit source attribution appears in the caption, all figures and tables in
-this report are the authors' own work, produced from the project's design artefacts,
-source code, execution logs, and experimental results.
-
-This report is organized into six chapters. \textbf{Chapter~1} establishes the project
-context, the host organizations, the operational environment of the Guichet OI unit, the
-formal problem statement, and the Sure Step hybrid project methodology.
-\textbf{Chapter~2} presents the existing system analysis covering FTTX and GPON network
-fundamentals, the four operational workflows, the process bottleneck diagnosis, and the
-state-of-the-art review that grounded the technology selections in the documented
-literature. \textbf{Chapter~3} documents the complete system design: eleven functional
-requirements, ten non-functional requirements, six hard technical constraints, a BPMN
-target process model, a global three-pillar ecosystem architecture, an Azure VNet hosting
-design, and a full UML specification comprising eighteen diagrams. \textbf{Chapter~4}
-presents the implementation of the SENTINEL Fleet with real execution logs, annotated
-Python source code, and validation results measured against live Orange Exchange data.
-\textbf{Chapter~5} covers the FiberGate AI Service from dataset construction and BIO
-annotation through LayoutLMv3 fine-tuning methodology and experimental evaluation.
-\textbf{Chapter~6} closes the report with the Unified Platform implementation, Azure
-deployment, system and user acceptance testing, and a quantified business impact
-assessment.
+All figures and tables are the authors' own work unless otherwise attributed. The report unfolds across six chapters: context and Sure Step methodology (\textbf{Ch.~1}); existing-system analysis and state of the art (\textbf{Ch.~2}); UML-based system design (\textbf{Ch.~3}); SENTINEL Fleet implementation (\textbf{Ch.~4}); the FiberGate AI Service and LayoutLMv3 fine-tuning (\textbf{Ch.~5}); and the Unified Platform and its impact assessment (\textbf{Ch.~6}).
