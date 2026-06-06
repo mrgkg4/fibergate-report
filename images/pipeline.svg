@@ -1,0 +1,101 @@
+<svg viewBox="0 0 1800 591" xmlns="http://www.w3.org/2000/svg" font-family="Arial, Helvetica, sans-serif">
+  <defs>
+    <linearGradient id="g1" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0" stop-color="#EFF6FF"/><stop offset="1" stop-color="#DBEAFE"/>
+    </linearGradient>
+    <linearGradient id="g2" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0" stop-color="#ECFDF5"/><stop offset="1" stop-color="#D1FAE5"/>
+    </linearGradient>
+    <linearGradient id="g3" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0" stop-color="#FEF3C7"/><stop offset="1" stop-color="#FDE68A"/>
+    </linearGradient>
+    <linearGradient id="g4" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0" stop-color="#EDE9FE"/><stop offset="1" stop-color="#DDD6FE"/>
+    </linearGradient>
+    <linearGradient id="g5" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0" stop-color="#FEE2E2"/><stop offset="1" stop-color="#FECACA"/>
+    </linearGradient>
+    <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#475569"/>
+    </marker>
+  </defs>
+  <rect width="1800" height="591" fill="#FFFFFF"/>
+
+  <!-- Title -->
+  <text x="900" y="48" text-anchor="middle" font-size="30" font-weight="700" fill="#0F172A">Five-Stage Pipeline Architecture</text>
+  <text x="900" y="78" text-anchor="middle" font-size="20" fill="#64748B">From raw documents to structured field extraction</text>
+
+  <!-- Stages: 5 boxes evenly spaced -->
+  <!-- box width 300, gap 50 between, total 5*300 + 4*50 = 1700, x start 50 -->
+
+  <g>
+    <rect x="50" y="135" width="300" height="200" rx="14" fill="url(#g1)" stroke="#1E40AF" stroke-width="2.5"/>
+    <text x="200" y="172" text-anchor="middle" font-size="22" font-weight="700" fill="#1E40AF">Stage 1</text>
+    <text x="200" y="200" text-anchor="middle" font-size="20" font-weight="700" fill="#0F172A">Preprocessing</text>
+    <line x1="80" y1="215" x2="320" y2="215" stroke="#1E40AF" stroke-width="1" opacity="0.4"/>
+    <text x="200" y="240" text-anchor="middle" font-size="16" fill="#334155">PDF → PNG render</text>
+    <text x="200" y="263" text-anchor="middle" font-size="16" fill="#334155">Tesseract OCR</text>
+    <text x="200" y="286" text-anchor="middle" font-size="16" fill="#334155">tokens + bboxes</text>
+    <text x="200" y="309" text-anchor="middle" font-size="16" fill="#334155">+ confidence</text>
+  </g>
+
+  <g>
+    <rect x="400" y="135" width="300" height="200" rx="14" fill="url(#g2)" stroke="#047857" stroke-width="2.5"/>
+    <text x="550" y="172" text-anchor="middle" font-size="22" font-weight="700" fill="#047857">Stage 2</text>
+    <text x="550" y="200" text-anchor="middle" font-size="20" font-weight="700" fill="#0F172A">Annotation</text>
+    <line x1="430" y1="215" x2="670" y2="215" stroke="#047857" stroke-width="1" opacity="0.4"/>
+    <text x="550" y="240" text-anchor="middle" font-size="16" fill="#334155">Label Studio UI</text>
+    <text x="550" y="263" text-anchor="middle" font-size="16" fill="#334155">doc-class labels</text>
+    <text x="550" y="286" text-anchor="middle" font-size="16" fill="#334155">field bbox labels</text>
+    <text x="550" y="309" text-anchor="middle" font-size="16" fill="#334155">CORS-served images</text>
+  </g>
+
+  <g>
+    <rect x="750" y="135" width="300" height="200" rx="14" fill="url(#g3)" stroke="#B45309" stroke-width="2.5"/>
+    <text x="900" y="172" text-anchor="middle" font-size="22" font-weight="700" fill="#B45309">Stage 3</text>
+    <text x="900" y="200" text-anchor="middle" font-size="20" font-weight="700" fill="#0F172A">Convert + Split</text>
+    <line x1="780" y1="215" x2="1020" y2="215" stroke="#B45309" stroke-width="1" opacity="0.4"/>
+    <text x="900" y="240" text-anchor="middle" font-size="16" fill="#334155">flat record format</text>
+    <text x="900" y="263" text-anchor="middle" font-size="16" fill="#334155">stratified 70/15/15</text>
+    <text x="900" y="286" text-anchor="middle" font-size="16" fill="#334155">grouped by source PDF</text>
+    <text x="900" y="309" text-anchor="middle" font-size="16" fill="#334155">label2id mapping</text>
+  </g>
+
+  <g>
+    <rect x="1100" y="135" width="300" height="200" rx="14" fill="url(#g4)" stroke="#5B21B6" stroke-width="2.5"/>
+    <text x="1250" y="172" text-anchor="middle" font-size="22" font-weight="700" fill="#5B21B6">Stage 4</text>
+    <text x="1250" y="200" text-anchor="middle" font-size="20" font-weight="700" fill="#0F172A">Training</text>
+    <line x1="1130" y1="215" x2="1370" y2="215" stroke="#5B21B6" stroke-width="1" opacity="0.4"/>
+    <text x="1250" y="240" text-anchor="middle" font-size="16" fill="#334155">LayoutLMv3-base</text>
+    <text x="1250" y="263" text-anchor="middle" font-size="16" fill="#334155">classifier → extractor</text>
+    <text x="1250" y="286" text-anchor="middle" font-size="16" fill="#334155">FP16 + class weights</text>
+    <text x="1250" y="309" text-anchor="middle" font-size="16" fill="#334155">HF Trainer API</text>
+  </g>
+
+  <g>
+    <rect x="1450" y="135" width="300" height="200" rx="14" fill="url(#g5)" stroke="#991B1B" stroke-width="2.5"/>
+    <text x="1600" y="172" text-anchor="middle" font-size="22" font-weight="700" fill="#991B1B">Stage 5</text>
+    <text x="1600" y="200" text-anchor="middle" font-size="20" font-weight="700" fill="#0F172A">Eval + Inference</text>
+    <line x1="1480" y1="215" x2="1720" y2="215" stroke="#991B1B" stroke-width="1" opacity="0.4"/>
+    <text x="1600" y="240" text-anchor="middle" font-size="16" fill="#334155">token P / R / F1</text>
+    <text x="1600" y="263" text-anchor="middle" font-size="16" fill="#334155">span-level F1</text>
+    <text x="1600" y="286" text-anchor="middle" font-size="16" fill="#334155">JSON field output</text>
+    <text x="1600" y="309" text-anchor="middle" font-size="16" fill="#334155">→ Agilis platform</text>
+  </g>
+
+  <!-- Arrows between stages -->
+  <line x1="350" y1="235" x2="400" y2="235" stroke="#475569" stroke-width="3" marker-end="url(#arr)"/>
+  <line x1="700" y1="235" x2="750" y2="235" stroke="#475569" stroke-width="3" marker-end="url(#arr)"/>
+  <line x1="1050" y1="235" x2="1100" y2="235" stroke="#475569" stroke-width="3" marker-end="url(#arr)"/>
+  <line x1="1400" y1="235" x2="1450" y2="235" stroke="#475569" stroke-width="3" marker-end="url(#arr)"/>
+
+  <!-- Iterative loop -->
+  <path d="M 1600 335 L 1600 430 L 900 430 L 900 380 L 900 335" stroke="#B45309" stroke-width="2.5" fill="none" stroke-dasharray="8 6" marker-end="url(#arr)"/>
+  <rect x="1080" y="412" width="440" height="38" rx="8" fill="#FFFFFF" stroke="#B45309" stroke-width="1.5"/>
+  <text x="1300" y="437" text-anchor="middle" font-size="17" font-style="italic" fill="#B45309" font-weight="600">Iterative loop · new annotated data → retrain</text>
+
+  <!-- Inputs and outputs -->
+  <text x="900" y="500" text-anchor="middle" font-size="20" font-weight="600" fill="#334155">Inputs:  PDF / PNG  ·  raw scans  ·  Label Studio JSON</text>
+  <text x="900" y="530" text-anchor="middle" font-size="20" font-weight="600" fill="#334155">Outputs:  document class  ·  structured field-value JSON</text>
+  <text x="900" y="568" text-anchor="middle" font-size="16" font-style="italic" fill="#64748B">All stages reproducible · deterministic seeds · per-stage artefacts</text>
+</svg>
