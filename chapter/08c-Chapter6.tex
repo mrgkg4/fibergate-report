@@ -3,282 +3,262 @@
 \section*{Introduction}
 \addcontentsline{toc}{section}{Introduction}
 
-This chapter details the development of the FiberGate unified web platform, which is the third pillar of the FiberGate ecosystem. The platform brings together the SENTINEL automation fleet and the FiberGate AI Service into a single operational interface accessible to all members of the Guichet OI: PAR France unit at Orange France.
+This chapter documents the FiberGate unified web platform, the third pillar of the FiberGate ecosystem. It brings the SENTINEL automation fleet and the FiberGate AI Service together into a single interface for the Guichet OI: PAR France unit at Orange France, combining an Angular and Spring Boot full-stack application, a FastAPI execution tier, role-based access control, and an Azure cloud deployment.
 
-The work covered in this chapter spans multiple development phases and combines a full-stack Angular and Spring Boot application with a FastAPI execution tier, a relational database, role-based access control, and a cloud deployment on Microsoft Azure.
-
-The chapter is organised as follows. Section 6.1 describes the platform architecture and implementation. Section 6.2 presents the five functional modules and their user-facing features. Section 6.3 covers the security architecture and data protection strategy. Section 6.4 details the Azure cloud deployment. Section 6.5 describes the CI/CD pipeline and DevOps workflow. Section 6.6 explains the integrations with the SENTINEL agents, the FiberGate AI Service, and Microsoft 365. Section 6.7 reports the testing and validation results. Section 6.8 presents the business impact assessment and return on investment analysis. Section 6.9 discusses system limitations and directions for future work.
+Section 6.1 covers the architecture and implementation; 6.2 the functional modules; 6.3 security; 6.4 the Azure deployment; 6.5 the CI/CD pipeline; 6.6 the ecosystem integrations; 6.7 testing and validation; 6.8 the business impact assessment; and 6.9 limitations and future work.
 
 \bigskip
 
 \section{Platform Implementation}
 
-The FiberGate platform is a three-tier web application. The presentation tier is an Angular single-page application (SPA) running on port 4200. The orchestration tier is a Spring Boot 3.2.4 REST server running on port 8080, which handles authentication, authorisation, and forwards automation job requests to the execution tier. The execution tier is a FastAPI application running asynchronously under Uvicorn on port 8000, which manages background automation jobs and hosts the FiberGate AI inference endpoint. All three tiers communicate over HTTP using JWT bearer tokens. Figure 6.1 shows the global system architecture.
+The platform is a three-tier web application: an Angular SPA (port 4200), a Spring Boot 3.2.4 orchestration server (port 8080) handling authentication and job routing, and an asynchronous FastAPI execution tier (port 8000) running automation jobs and the AI inference endpoint. All tiers communicate over HTTP with JWT bearer tokens.
 
-[Figure 6.1. Global system architecture: Angular SPA, Spring Boot orchestration layer, and FastAPI execution tier, connected to Microsoft 365 via Power Automate and Microsoft Graph API.]
+\begin{figure}[H]
+  \centering
+  \fbox{\parbox[c][5cm]{0.55\textwidth}{\centering\itshape Placeholder --- Figure 6.1\\Global system architecture diagram: Angular SPA, Spring Boot orchestration layer, FastAPI execution tier, and Microsoft 365 connections via Power Automate / Graph API}}
+  \caption{Global system architecture}
+  \label{fig:architecture}
+\end{figure}
 
-\subsection{Backend Architecture and Implementation (Spring Boot)}
+\subsection{Backend Architecture (Spring Boot)}
 
-The orchestration backend is built with Spring Boot 3.2.4 and exposes a REST API on port 8080. It has three main responsibilities. First, it authenticates and authorises all incoming requests. Second, it acts as a reverse proxy that forwards automation job submissions to the FastAPI execution tier. Third, it manages all relational data, including user records, roles, audit entries, and job metadata, through a JPA persistence layer backed by a PostgreSQL database.
+The Spring Boot orchestration layer authenticates and authorises every request, proxies automation job submissions to FastAPI, and persists relational data (users, roles, audit entries, job metadata) through JPA over PostgreSQL. It follows a standard layered architecture: controllers expose REST endpoints, services hold business logic, and repositories handle persistence via Spring Data JPA. Cross-cutting concerns (JWT validation, CORS, exception handling, audit logging) are implemented as filters and aspects so they apply uniformly without duplication. As the security boundary, Spring Boot validates every JWT and resolves the user role before forwarding verified requests to FastAPI, which therefore only ever receives authenticated traffic.
 
-The application follows the standard Spring layered architecture. The controller layer exposes REST endpoints. The service layer contains the business logic. The repository layer communicates with the database through Spring Data JPA. Cross-cutting concerns such as JWT validation, CORS policy, exception handling, and audit logging are implemented as Spring filters and aspect-oriented components. This approach ensures that these concerns apply uniformly across all endpoints without requiring any duplication of logic in the controller layer.
+\subsection{Frontend Architecture (Angular)}
 
-The Spring Boot backend also acts as a security boundary. Every request from the Angular frontend is received by the Spring layer first. The backend validates the JWT, resolves the user role, and either responds from its own data layer or forwards the request to FastAPI with the verified identity attached. As a result, the FastAPI tier only receives traffic that has already been authenticated.
+The frontend is an Angular 17 SPA with a component-driven architecture: each functional module (authentication, operator dashboard, automation panels, AI review interface, administration console) is an independently routed module with its own components, services, and route guards. State is managed through RxJS observables so dashboard panels react to job-status changes without polling. An HTTP interceptor attaches the JWT to every request, and route guards enforce role-based navigation before any server call is made. The interface was designed from high-fidelity Figma prototypes validated with stakeholders beforehand, and adapts to the authenticated role: Consultants see their dossier queue and AI review tasks, Pilots see automation controls and the distribution upload, and the SDM sees the audit trail and performance dashboard.
 
-\subsection{Frontend Architecture and Implementation (Angular)}
+\begin{figure}[H]
+  \centering
+  \fbox{\parbox[c][5cm]{0.5\textwidth}{\centering\itshape Placeholder --- Screenshot\\Angular operator dashboard (role-adapted view)}}
+  \caption{FiberGate operator dashboard interface}
+  \label{fig:dashboard-screenshot}
+\end{figure}
 
-The frontend is an Angular 17 SPA served on port 4200. It follows a component-driven architecture in which each functional module is an independently routed Angular module with its own component tree, services, and route guards. The modules are the authentication screens, the operator dashboard, the automation control panels, the AI results review interface, and the administration console.
+\subsection{API Design and Service Integration}
 
-Application state is managed through Angular services using RxJS observables, which allows the dashboard panels to update in response to job-status changes without requiring constant polling. HTTP communication is handled by a dedicated API service layer that attaches the JWT bearer token to every outgoing request through an Angular HTTP interceptor. Route guards enforce role-based access at the navigation level by redirecting users who attempt to reach a module that their role does not permit before any server request is made.
+The REST API is organised by resource: identity/session under \texttt{/api/auth/}, business resources (jobs, dossiers, users) under \texttt{/api/jobs/}, \texttt{/api/dossiers/}, \texttt{/api/users/}, and administration under \texttt{/api/admin/} and \texttt{/api/audit/}, with conventional HTTP verbs throughout.
 
-The user interface was designed using high-fidelity Figma prototypes before any code was written. This ensured that the layout, colour system, and interaction patterns were validated with stakeholders in advance. The interface presents a different view depending on the authenticated role. Consultants see their assigned dossier queue and AI review tasks. Pilots see the automation control panels and the distribution upload interface. The Service Delivery Manager (SDM) sees the complete audit trail and the cross-team performance dashboard.
+The service integration layer decouples Angular from the execution backends through an asynchronous job pattern: Spring Boot validates a submission, records it, and forwards it to FastAPI, which starts a background task, returns a UUID immediately, and lets the dashboard poll \texttt{/api/jobs/\{id\}/status} for progress. This non-blocking design keeps long-running jobs (e.g.\ a 112-task distribution batch taking up to 3 min 40 s) from blocking the UI or timing out the load balancer.
 
-\subsection{RESTful API Design and Service Integration Layer}
+\begin{figure}[H]
+  \centering
+  \fbox{\parbox[c][4.5cm]{0.55\textwidth}{\centering\itshape Placeholder --- Figure 6.2\\Sequence diagram: asynchronous job submission flow (Angular $\rightarrow$ Spring Boot $\rightarrow$ FastAPI $\rightarrow$ polling)}}
+  \caption{Asynchronous job submission and polling sequence}
+  \label{fig:job-sequence}
+\end{figure}
 
-The REST API is organised around three categories of resources. Identity and session resources are served under `/api/auth/\textbf{`. Business resources such as jobs, dossiers, and users are served under `/api/jobs/}`, `/api/dossiers/\textbf{`, and `/api/users/}`. Administration resources are served under `/api/admin/\textbf{` and `/api/audit/}`. All endpoints follow standard HTTP verb conventions: GET for read operations, POST for job submissions and resource creation, PUT and PATCH for updates, and DELETE for soft-deletes that preserve the audit record.
+\subsection{Database Architecture and Schema}
 
-The service integration layer is responsible for decoupling the Angular frontend from the execution backends. When a Pilot submits a distribution batch through the interface, the Angular client sends a POST request to `/api/jobs/distribution` on the Spring Boot layer. Spring Boot validates the request, writes a job record to the database, and forwards the payload asynchronously to the FastAPI endpoint at `http://localhost:8000/run/distribution`. FastAPI starts a background task, assigns it a UUID identifier, and immediately returns that identifier to Spring Boot. Spring Boot stores the UUID and exposes a polling endpoint at `/api/jobs/\{id\}/status` so the dashboard can check progress without keeping an open HTTP connection. This non-blocking design prevents long-running automation tasks from blocking the user interface or timing out at the load balancer. The distribution engine, for example, can take up to three minutes and forty seconds to process a batch of 112 tasks.
+The platform uses a PostgreSQL database under Liquibase migrations, organised into five entity groups: \emph{identity} (\texttt{users}, \texttt{roles}, \texttt{user\_roles}, linked to Microsoft Entra ID); \emph{jobs} (\texttt{automation\_jobs}, \texttt{job\_logs}, recording every execution and its status); \emph{dossiers} (\texttt{dossiers}, \texttt{document\_extractions}, \texttt{field\_corrections}, holding AI results and consultant corrections that feed the Chapter 5 retraining loop); \emph{audit} (\texttt{audit\_log}, recording every state-changing operation with before/after values, feeding the SDM audit view); and \emph{configuration} (\texttt{system\_config}, runtime-editable parameters such as confidence thresholds and model version).
 
-\subsection{Relational Database Architecture and Schema Design}
-
-The platform uses a PostgreSQL database managed through Liquibase-controlled migrations. The schema is organised into five groups of entities.
-
-The identity entities, stored in the `users`, `roles`, and `user\_roles` tables, hold the platform accounts and their assigned roles. Each user record includes a reference to the Microsoft Entra ID object identifier, which allows the Spring Boot layer to resolve display names and team membership without maintaining a separate internal directory.
-
-The job entities, stored in `automation\_jobs` and `job\_logs`, record every automation execution. Each record captures the submitting user, the target agent, the submission time, the FastAPI UUID, the current status (PENDING, RUNNING, COMPLETED, or FAILED), and the output returned by the execution tier.
-
-The dossier entities, stored in `dossiers`, `document\_extractions`, and `field\_corrections`, hold the results produced by the AI service. Each dossier record is linked to the corresponding SharePoint SUIVI row by its OEIE identifier. The document extractions table stores the per-field results from the FiberGate AI extractor. The field corrections table records every manual change made by a consultant. These correction records feed the continuous-improvement retraining loop described in Chapter 5.
-
-The audit entities, stored in the `audit\_log` table, record every operation that changes the state of any resource. Each entry contains the identity of the actor, the type of action, the type and identifier of the affected resource, the values before and after the change, and the timestamp. This log is the data source for the SDM audit trail view.
-
-The configuration entities, stored in `system\_config`, hold platform parameters that can change at runtime, such as confidence thresholds, rate-limit delays, and the active model version identifier. Administrators can update these values through the interface without redeploying the application.
+\begin{figure}[H]
+  \centering
+  \fbox{\parbox[c][5.5cm]{0.6\textwidth}{\centering\itshape Placeholder --- Figure 6.3\\Entity-relationship diagram of the five schema groups (identity, jobs, dossiers, audit, configuration)}}
+  \caption{Relational database schema overview}
+  \label{fig:db-schema}
+\end{figure}
 
 \section{Functional Modules and Platform Features}
 
-The platform provides five functional modules, each serving a distinct set of user needs. The modules share a common Angular shell that includes the navigation bar, the notification centre, and the session status indicator. Each module is routed and permission-guarded independently of the others.
+The platform provides five role-guarded functional modules sharing a common Angular shell (navigation bar, notification centre, session indicator).
 
-\subsection{Authentication and Session Management Module}
+\subsection{Authentication and Session Management}
 
-The authentication module implements a stateless session model based on JWT. When a user logs in, credentials are submitted to `/api/auth/login`. The Spring Boot layer verifies them against the local user store, generates a signed JWT containing the user identifier and role claims, and returns it to the Angular client. The client stores the token in memory rather than in localStorage, which protects against cross-site scripting (XSS) attacks that could steal tokens from browser storage. The token is attached to every subsequent request by the HTTP interceptor. Before the token expires, a silent refresh is triggered through a dedicated endpoint so the user's session continues without interruption. On logout, the client removes the token from memory and the server marks the refresh record as invalid.
+The module implements a stateless JWT session model: on login, Spring Boot verifies credentials, issues a signed JWT with role claims, and the Angular client stores it in memory (not \texttt{localStorage}, to mitigate XSS token theft). The interceptor attaches the token to every request, a silent refresh keeps sessions alive, and logout invalidates the refresh record server-side. The login page is the only unauthenticated route; all others are protected by route guards that redirect on missing or insufficient claims.
 
-The login screen is the only route accessible without authentication. Every other route is protected by Angular route guards that verify the JWT claims and redirect users to the login page if their token is missing or if their role does not permit access.
+\begin{figure}[H]
+  \centering
+  \fbox{\parbox[c][4.5cm]{0.45\textwidth}{\centering\itshape Placeholder --- Screenshot\\Login / authentication screen}}
+  \caption{Authentication screen}
+  \label{fig:login-screenshot}
+\end{figure}
 
-\subsection{User and Role Administration Module}
+\subsection{User and Role Administration}
 
-The administration module is available only to users with the SDM role. It provides a searchable and paginated user table with inline role assignment, account activation and deactivation controls, and a password reset function that sends a one-time link through the Microsoft Exchange integration. New users are provisioned by entering their Microsoft Entra ID identifier. The backend then resolves the identifier to a display name and email address through the Microsoft Graph API, which removes the need to enter directory information a second time.
+Available only to the SDM role, this module provides a searchable user table with inline role assignment, account activation/deactivation, and password resets via Exchange. New users are provisioned by Microsoft Entra ID identifier, with the Graph API resolving the display name and email automatically. Role enforcement is layered: the Angular guard blocks navigation, the Spring Boot filter rejects insufficiently privileged API calls, and the database permission model restricts data access even if the upper layers fail.
 
-Role assignments are enforced at three levels. The Angular route guard prevents navigation to restricted modules. The Spring Boot security filter rejects API calls that do not carry sufficient role claims. The database permission model restricts data access even if both of the upper layers were to fail. This layered approach ensures that a configuration error in the frontend cannot expose data that a user is not permitted to see.
+\begin{figure}[H]
+  \centering
+  \fbox{\parbox[c][4.5cm]{0.5\textwidth}{\centering\itshape Placeholder --- Screenshot\\User and role administration console}}
+  \caption{Administration console}
+  \label{fig:admin-screenshot}
+\end{figure}
 
 \subsection{Automation Monitoring and Control Dashboard}
 
-The automation dashboard is the main interface for Pilot users. It presents one control panel per SENTINEL agent. Each panel shows the current job status, a form for submitting a new job, and a live log view that displays the output of the running agent as it is produced by the FastAPI job store.
+The main interface for Pilots, this dashboard presents one panel per SENTINEL agent showing job status, a submission form, and a live log view streamed from the FastAPI job store. The POI panel (Agent 1) reports scanned emails, extracted fields, and created SUIVI rows / Planner tasks; the CAFF panel (Agent 2) shows the latest processed return and its routing outcome; the distribution panel (Agent 3) accepts the daily Excel batch, shows progress by demand type, and links to the colour-coded output workbook. A summary bar aggregates the day's job counts, success rates, and processing time across all three agents.
 
-The POI validation panel (Agent 1) shows the status of the most recent Agilis mail processing run, including the number of emails scanned, the fields extracted from each email, and the SUIVI rows and Planner tasks that were created. The CAFF returns panel (Agent 2) shows the most recent GedAffaire mail that was processed and the routing outcome. The distribution panel (Agent 3) provides a file upload area for the daily Full PAR France Excel batch, a progress indicator broken down by demand type (RAR, Nouvelle, Retour, and Go), and a download link for the colour-coded output workbook when the run is complete.
+\begin{figure}[H]
+  \centering
+  \fbox{\parbox[c][5cm]{0.55\textwidth}{\centering\itshape Placeholder --- Screenshot\\Automation monitoring dashboard with per-agent panels and live log view}}
+  \caption{Automation monitoring and control dashboard}
+  \label{fig:automation-dashboard-screenshot}
+\end{figure}
 
-A summary bar at the top of the dashboard shows the day's job counts, success rates, and total processing time across all three agents, giving the Pilot an overview of the unit's operational status without opening each panel individually.
+\subsection{AI Service Interaction and Results Management}
 
-\subsection{AI Service Interaction and Results Management Interface}
+The primary Consultant workspace: when a dossier is analysed, the FiberGate AI Service classifies each document (87.7\% accuracy) and extracts the twelve target fields at the reliability reported in Table 5.10. Results appear in a structured review form with, per field, the extracted value, a colour-coded confidence indicator (green/amber/red), and an editable correction box. A completeness verdict (\textsc{demande complete} / \textsc{incomplete}) appears at the top with the triggering fields; the consultant can confirm, override with justification, or request reanalysis. Every correction is stored with its original OCR tokens and coordinates, feeding the continuous-improvement loop, and a download button produces the pre-filled 27-column Excel artefact for Agilis submission.
 
-The AI results interface is the primary workspace for Consultant users. When a dossier is submitted for AI analysis, the FiberGate AI Service classifies each attached document (87.7\% accuracy) and extracts the twelve target fields at the per-field reliability reported in Table 5.10. The results are shown to the consultant in a structured review form. For each field, the form displays the extracted value, a colour-coded confidence indicator (green for high confidence, amber for medium confidence, and red for fields below the confidence threshold or with an F1 score of zero in the deployed model), and an editable input for corrections.
+\begin{figure}[H]
+  \centering
+  \fbox{\parbox[c][5.5cm]{0.6\textwidth}{\centering\itshape Placeholder --- Screenshot\\AI results review interface: extracted fields, confidence indicators, completeness verdict}}
+  \caption{AI results review interface}
+  \label{fig:ai-review-screenshot}
+\end{figure}
 
-The completeness verdict produced by the rule-based recommendation engine appears at the top of the form as either DEMANDE COMPLETE or DEMANDE INCOMPLETE, together with the list of fields that caused the verdict. The consultant can confirm the verdict, override it with a written justification, or request a new analysis if a document has been misclassified.
+\subsection{System Administration and Audit Trail}
 
-Every correction submitted by the consultant is stored by the backend as a field correction record linked to the original OCR tokens and page coordinates. This feeds the continuous-improvement loop. The interface also provides a download button that generates the 27-column Excel artifact pre-filled with the confirmed extraction values, ready for submission to the Agilis operational system.
+The audit module gives the SDM a chronological, filterable log of every state-changing event (logins, role changes, job submissions, AI confirmations, corrections, configuration edits), each entry showing actor, action, resource, timestamp, and before/after values. A system health panel reports the active model version (read from the AI Service \texttt{/health} endpoint), confidence thresholds, database pool status, and tier availability; thresholds and rate-limit delays can be edited inline, with each change written to \texttt{system\_config} and logged.
 
-\subsection{System Administration and Audit Trail Module}
-
-The audit trail module gives the SDM access to a chronological and filterable log of every event that changed the state of the platform: user logins, role changes, job submissions, AI result confirmations, field corrections, and configuration changes. Each entry shows the actor, the action, the affected resource, the timestamp, and the before and after values of any modified field.
-
-The module also includes a system health panel showing the active model version read from the FiberGate AI Service `/health` endpoint, the current confidence threshold settings, the database connection pool status, and the availability of each application tier. Administrators can edit confidence thresholds and rate-limit delays through an inline configuration form. Each change is written to the `system\_config` table and recorded in the audit log.
+\begin{figure}[H]
+  \centering
+  \fbox{\parbox[c][4.5cm]{0.5\textwidth}{\centering\itshape Placeholder --- Screenshot\\Audit trail and system health panel}}
+  \caption{Audit trail and system administration panel}
+  \label{fig:audit-screenshot}
+\end{figure}
 
 \section{Security Architecture and Access Management}
 
-The security model is applied at every layer of the request lifecycle, from the browser to the database. It is built on three mechanisms: JWT-based authentication, role-based access control, and a data protection strategy that complies with GDPR requirements.
+Security is enforced at every layer of the request lifecycle through three mechanisms: JWT authentication, role-based access control, and a GDPR-aligned data protection strategy.
 
-\subsection{Authentication and Authorization Mechanisms (JWT)}
+\subsection{Authentication (JWT)}
 
-The platform uses JSON Web Tokens (JWT) as its authentication mechanism. Each token is signed using HMAC-SHA256 with a 256-bit secret and contains the following claims: the subject (user identifier), the role list, the time the token was issued, and the expiry time. Access tokens expire after fifteen minutes and refresh tokens expire after seven days. All tokens are transmitted exclusively over HTTPS.
+Each token is signed with HMAC-SHA256 (256-bit secret) and carries the subject, role list, issue time, and expiry (15 minutes for access tokens, 7 days for refresh tokens), transmitted exclusively over HTTPS. The Spring Boot security filter chain validates the signature and expiry, resolves role claims, and builds the authentication context before any controller runs; invalid or missing tokens receive an immediate HTTP 401.
 
-The Spring Boot security filter chain processes every incoming request before it reaches a controller. It reads the Authorization header, validates the token signature and expiry time, resolves the role claims, and constructs a Spring Security authentication context that is available to all downstream components. Any request with a missing, expired, or invalid token receives an HTTP 401 Unauthorized response before any business logic is executed.
+\subsection{Role-Based Access Control}
 
-\subsection{Role-Based Access Control Implementation}
+Three roles map directly to the unit's operational actors: \textbf{Consultant} (AI review interface, dossier queue, own correction history), \textbf{Pilot} (Consultant access plus automation dashboard and distribution upload, with aggregate but not individual statistics), and \textbf{SDM} (full access: provisioning, role assignment, audit trail, configuration). Enforcement is layered across Angular route guards, Spring Boot \texttt{@PreAuthorize} annotations, and Hibernate row-level filters, so a frontend misconfiguration alone cannot expose protected data.
 
-Three roles are defined, corresponding directly to the three operational actors in the Guichet OI unit.
+\begin{figure}[H]
+  \centering
+  \fbox{\parbox[c][4.5cm]{0.55\textwidth}{\centering\itshape Placeholder --- Figure 6.4\\Role-based access control matrix: Consultant / Pilot / SDM permissions across modules and enforcement layers}}
+  \caption{RBAC permission matrix}
+  \label{fig:rbac-matrix}
+\end{figure}
 
-The Consultant role provides access to the AI results review interface, the dossier queue, and the user's own correction history. Consultants cannot access the automation control panels, the user administration module, or the audit logs.
+\subsection{Data Protection and GDPR Compliance}
 
-The Pilot role extends Consultant access to include the automation monitoring and control dashboard and the distribution file upload interface. Pilots can view aggregate job statistics for the team but cannot access individual audit records or manage users.
-
-The SDM role provides full access to all modules, including user provisioning, role assignment, the complete audit trail, and system configuration.
-
-Role checks are applied at three levels. Angular route guards control navigation. Spring Boot method-level security annotations (`@PreAuthorize`) protect each API endpoint. Hibernate row-level filters restrict database access on sensitive tables. This approach ensures that an incorrectly configured frontend guard cannot grant access to data that the calling user is not authorised to read.
-
-\subsection{Data Protection and Compliance Strategy}
-
-The platform processes personal data including names, email addresses, and phone numbers extracted from administrative documents. It is therefore subject to the General Data Protection Regulation (GDPR). The compliance strategy rests on four principles.
-
-Data minimisation: the platform stores extracted field values but does not store the original document images. PDFs and PNG rasters are processed in memory by the FiberGate AI Service and are discarded after extraction. They are never written to the application database. If persistent document storage is required, it is handled by IBM FileNet or Azure Blob Storage under separate access policies.
-
-On-premises annotation: as described in Chapter 5, the Label Studio annotation server used during corpus construction ran on-premises. A local CORS proxy served document images to the browser so that no annotated personal data was sent to any external service.
-
-Audit logging: every access to a dossier that contains personal data is recorded in the audit table with the actor identity and the timestamp. This allows data subjects to request an access log under Article 15 of the GDPR.
-
-Retention policy: field correction records used for AI retraining are pseudonymised before storage. The personal values are replaced with anonymised equivalents for model training purposes so that the retraining corpus does not form a personal data archive.
+The platform handles personal data (names, emails, phone numbers) and applies four compliance principles: \emph{data minimisation} (extracted values are stored, but original document images are processed in memory and discarded — never written to the application database); \emph{on-premises annotation} (the Chapter 5 Label Studio server ran on-premises behind a local CORS proxy, so no personal data left the organisation during corpus construction); \emph{audit logging} (every access to personal data is recorded with actor and timestamp, supporting GDPR Article 15 access requests); and a \emph{retention policy} (correction records used for retraining are pseudonymised before storage).
 
 \bigskip
 
 \section{Azure Cloud Deployment}
 
-The deployment target evolved between the Design and Development phases. The architecture specified in Section~3.4 assumed virtual-machine and Azure App Service hosting with an Azure SQL database and a dedicated inference VM. During implementation this was revised in favour of a fully containerised topology for three reasons: packaging each tier as a Docker image removed environment drift between the development, staging, and production slots; Azure Container Apps provides scale-to-zero and per-revision blue-green rollback that App Service plans did not offer within the shared Mantu subscription; and a managed PostgreSQL Flexible Server matched the platform's open-source persistence stack while remaining reachable only through a private endpoint. The as-built infrastructure described below therefore supersedes the target design of Section~3.4.
+The deployment target evolved from the VM/App-Service design of Section~3.4 to a fully containerised topology, chosen for three reasons: Docker images eliminate environment drift across slots; Azure Container Apps offers scale-to-zero and per-revision blue-green rollback unavailable in the shared subscription's App Service plans; and a managed PostgreSQL Flexible Server matches the open-source stack while staying behind a private endpoint. The as-built infrastructure below supersedes the Section~3.4 target design.
 
-The FiberGate platform is deployed on Microsoft Azure. Azure Container Apps serves as the primary compute layer and Microsoft Entra ID provides the identity plane. Each application tier runs in a dedicated container, with Azure Blob Storage holding persistent artefacts and a managed PostgreSQL instance holding the relational data.
+\begin{figure}[H]
+  \centering
+  \fbox{\parbox[c][5.5cm]{0.6\textwidth}{\centering\itshape Placeholder --- Figure 6.5\\Azure deployment topology: Container Apps environments, VNet, managed PostgreSQL, Blob Storage, and Microsoft 365 connectivity}}
+  \caption{Azure cloud deployment architecture}
+  \label{fig:azure-architecture}
+\end{figure}
 
-\subsection{Infrastructure Provisioning and Hosting Configuration}
+\subsection{Infrastructure Provisioning}
 
-Each application tier is packaged as a Docker container and deployed to Azure Container Apps (ACA). The Angular SPA is served by an Nginx container. The Spring Boot orchestration layer runs in a standard ACA container allocated 2 vCPUs and 4 GB of RAM. The FastAPI execution tier, which runs the LayoutLMv3 inference endpoint, requires a GPU-enabled container with approximately 8 GB of VRAM to fit the 7 GB model.
+Each tier runs as a Docker container on Azure Container Apps: Nginx serves the Angular SPA, Spring Boot runs on a standard container (2 vCPU / 4 GB RAM), and the GPU-enabled FastAPI/LayoutLMv3 tier requires roughly 8 GB VRAM for the 7 GB model. Images are stored in Azure Container Registry tagged with the Git commit SHA for traceability. PostgreSQL runs on Azure Database for PostgreSQL Flexible Server with automated backups, point-in-time restore, and a private endpoint that blocks public access. Model checkpoints and generated Excel artefacts are stored in versioned, dated folders in Azure Blob Storage, with the active checkpoint selected at startup via the \texttt{system\_config} version identifier.
 
-Container images are stored in Azure Container Registry (ACR) and tagged with the Git commit SHA. This makes it possible to trace any running container back to the exact source code revision that produced it. The PostgreSQL database is hosted on Azure Database for PostgreSQL Flexible Server with automated backups, point-in-time restore, and private endpoint networking that blocks public internet access to the database.
+\subsection{Network Architecture}
 
-Model checkpoints (`classifier\_v\{n\}` and `extractor\_v\{n\}`) and generated Excel artefacts are stored in Azure Blob Storage, organised by version and date. The FiberGate AI Service reads the active checkpoint from Blob Storage at startup, using the version identifier stored in the `system\_config` table to select the correct checkpoint.
+All Container Apps run inside a shared VNet and communicate over private DNS, never crossing the public internet; only the Angular CDN origin (Azure Front Door) and the Spring Boot API (Application Gateway with WAF) are publicly exposed. The on-premises Exchange Server is reached by Agents 1 and 2 through a hybrid VPN/ExpressRoute circuit without exposing it to the internet. Microsoft 365 services (SharePoint, Planner, Teams, Entra ID) are accessed via the Graph API using managed identities backed by Key Vault, so no secrets appear in configuration or environment variables.
 
-\subsection{Network Architecture and Connectivity Design}
+\subsection{Scalability and High Availability}
 
-All Azure Container Apps run inside a shared virtual network (VNet). Communication between services, such as from Angular to Spring Boot or from Spring Boot to FastAPI, uses private DNS names that are resolved within the VNet. This traffic never crosses the public internet. The only endpoints exposed publicly are the Angular CDN origin via Azure Front Door and the Spring Boot REST API via an Azure Application Gateway with a web application firewall (WAF) policy.
-
-The on-premises Exchange Server, accessed by Agent 1 and Agent 2 via EWS/NTLM, is connected to the Azure VNet through a hybrid VPN or ExpressRoute circuit. This allows the FastAPI agents to reach the Exchange mailbox without exposing the Exchange server to the internet or changing its credential configuration.
-
-Microsoft 365 services including SharePoint, Planner, Teams, and Microsoft Entra ID are accessed through the Microsoft Graph API using managed identities. Managed identities remove the need for stored credentials because the Azure platform issues short-lived tokens automatically, backed by Azure Key Vault. No secrets appear in application configuration files or environment variables.
-
-\subsection{Scalability Design and High Availability Configuration}
-
-Azure Container Apps supports scale-to-zero for the Angular and Spring Boot containers during off-hours. This reduces cost without affecting availability during the working day. Scaling rules are set to add container replicas when CPU utilisation exceeds 70\% or when the job queue holds more than ten pending items.
-
-The GPU container running the LayoutLMv3 inference endpoint does not scale to zero because loading a 7 GB model from storage takes too long for an interactive workflow. It maintains one active replica at all times, with a second available on demand during periods of higher load.
-
-High availability is provided through Azure's zone redundancy for Container Apps environments. The managed PostgreSQL instance runs with a standby replica in a separate availability zone and fails over automatically with a recovery time objective of under two minutes.
+The Angular and Spring Boot containers scale to zero off-hours and add replicas above 70\% CPU or a queue of more than ten pending jobs. The GPU inference container keeps one replica always active (a 7 GB model load is too slow for an interactive workflow on cold start), with a second available on demand. Zone redundancy covers the Container Apps environments, and the managed PostgreSQL instance fails over to a standby replica in under two minutes.
 
 \bigskip
 
 \section{CI/CD Pipeline and DevOps Strategy}
 
-The FiberGate project uses a structured DevOps workflow that divides source control, build automation, and release management across GitHub and Azure DevOps.
+Source control, build automation, and release management are split across GitHub and Azure DevOps.
 
-\subsection{Source Control Management and Branching Strategy (GitHub)}
+\begin{figure}[H]
+  \centering
+  \fbox{\parbox[c][5cm]{0.6\textwidth}{\centering\itshape Placeholder --- Figure 6.6\\CI/CD pipeline diagram: GitHub Actions build/test stages $\rightarrow$ Azure DevOps release pipeline $\rightarrow$ Dev / Staging / Production promotion}}
+  \caption{CI/CD pipeline and environment promotion flow}
+  \label{fig:cicd-pipeline}
+\end{figure}
 
-The full codebase is stored in a GitHub organisation using a monorepo structure. A single repository holds the Angular frontend, the Spring Boot backend, the FastAPI execution tier, and the infrastructure-as-code definitions. The branching strategy follows a simplified GitFlow model.
+\subsection{Source Control and Branching (GitHub)}
 
-The `main` branch holds the production-ready state. Direct commits to `main` are blocked and all changes arrive through pull requests. The `develop` branch serves as the integration branch where feature branches are merged after code review. Feature branches follow the naming convention `feature/\{ticket-id\}-\{short-description\}` and are typically merged within one development sprint. Hotfix branches named `hotfix/\{id\}` are created directly from `main` for urgent production fixes.
+A single monorepo holds the Angular, Spring Boot, FastAPI, and infrastructure-as-code code, under a simplified GitFlow: \texttt{main} is production-protected (PR-only), \texttt{develop} is the integration branch, feature branches follow \texttt{feature/\{ticket-id\}-\{description\}}, and \texttt{hotfix/\{id\}} branches are cut directly from \texttt{main}. Merges to \texttt{develop} or \texttt{main} require an approving review (rotated via CODEOWNERS) and a passing CI build.
 
-Branch protection rules require at least one approving review and a passing CI build before any merge to `develop` or `main`. Review assignments rotate automatically through a CODEOWNERS file.
+\subsection{Continuous Integration (GitHub Actions)}
 
-\subsection{Continuous Integration and Build Automation (GitHub Actions)}
+Every push and pull request triggers dependency installation, static analysis (ESLint, SpotBugs, Ruff), unit tests with coverage, and a Docker build — any failing step blocks the merge. Coverage gates require at least 70\% for the Spring Boot service layer and 60\% for FastAPI route handlers, with reports linked in the PR summary. Images are tagged with branch name and commit SHA; feature-branch images go to the ACR development namespace only.
 
-A GitHub Actions workflow runs on every push to a feature branch and on every pull request. The pipeline executes the following steps in order: dependency installation, static code analysis (ESLint for Angular, SpotBugs for Spring Boot, and Ruff for FastAPI Python), unit test execution with coverage reporting, and Docker image build. A failure in any step blocks the pull request from merging.
+\subsection{Continuous Delivery (Azure DevOps)}
 
-Test coverage thresholds are enforced as part of the pipeline. The build fails if coverage falls below 70\% for the Spring Boot service layer or below 60\% for the FastAPI route handlers. Coverage reports are uploaded to the GitHub Actions artefact store and linked in the pull request summary.
+A release pipeline triggers automatically on image pushes to the staging namespace (merge to \texttt{develop}) or production namespace (merge to \texttt{main}). It applies Terraform plans, updates the ACA revision, runs smoke tests, and notifies the team via Microsoft Teams. Terraform state lives in Azure Storage with locking, and infrastructure changes require their own reviewed PR with a \texttt{terraform plan} step.
 
-The Docker build step tags each image with the branch name and commit SHA. Images produced from feature branches are pushed to the ACR development namespace and can be deployed to the development environment only, not to staging or production.
+\subsection{Environment Promotion}
 
-\subsection{Continuous Delivery and Release Management (Azure DevOps)}
-
-Deployment pipelines are managed in Azure DevOps. A release pipeline starts automatically when a Docker image is pushed to the ACR staging namespace (triggered by a merge to `develop`) or to the production namespace (triggered by a merge to `main`). The pipeline applies any infrastructure changes through environment-specific Terraform plans, updates the ACA container revision to the new image tag, runs the smoke test suite, and sends a deployment notification to the team's Microsoft Teams channel.
-
-Terraform state is stored in an Azure Storage backend with state locking to prevent two infrastructure changes from running at the same time. Infrastructure changes require a separate pull request to the `infrastructure/` directory and must pass a `terraform plan` review step before they can be applied.
-
-\subsection{Environment Promotion Strategy (Development, Staging, Production)}
-
-The platform operates across three environments. Each environment is an independent Azure Container Apps environment with its own database, blob storage container, and managed identity. Environment variables and secrets are provided through Azure Key Vault references in the ACA configuration, so the same container image runs across all environments without any modification.
-
-The Development environment receives every commit merged to the `develop` branch. It uses a small set of synthetic documents and is intended for functional testing by developers and the project team. Container costs are reduced by scaling all containers to zero outside working hours.
-
-The Staging environment receives every release candidate tagged in GitHub. It uses the same container sizes, GPU allocation, and database tier as production so that performance and scalability tests reflect real conditions. User acceptance testing is conducted on the Staging environment.
-
-The Production environment is promoted from Staging after user acceptance testing sign-off. Each promotion requires a manual approval step in the Azure DevOps release pipeline assigned to the SDM role. Deployment follows a blue-green strategy: the new revision initially receives ten percent of traffic, is monitored for five minutes, and is promoted to full traffic if no error increase is detected.
+Three independent environments — each with its own database, storage, and managed identity, configured via Key Vault references so the same image runs unmodified everywhere — form the promotion chain. \textbf{Development} receives every \texttt{develop} merge, runs on synthetic data, and scales to zero off-hours. \textbf{Staging} receives release candidates at production-equivalent sizing for performance testing and user acceptance testing. \textbf{Production} is promoted after UAT sign-off via a manual SDM-gated approval, using a blue-green rollout that ramps a new revision from 10\% to full traffic over five minutes of monitored operation.
 
 \bigskip
 
 \section{Ecosystem Integration Architecture}
 
-The FiberGate platform connects three SENTINEL automation agents, the FiberGate AI document intelligence service, and the Microsoft 365 tools used daily by the Guichet OI team. This section describes how each integration is built and how they work together to form complete automated workflows.
+The platform connects the three SENTINEL agents, the FiberGate AI Service, and the Microsoft 365 tools used daily by the Guichet OI team.
 
-\subsection{SENTINEL Fleet Integration via FastAPI Proxy Layer}
+\begin{figure}[H]
+  \centering
+  \fbox{\parbox[c][5.5cm]{0.6\textwidth}{\centering\itshape Placeholder --- Figure 6.7\\Ecosystem integration diagram: SENTINEL agents, AI Service, Spring Boot/FastAPI proxy layer, and Microsoft 365 (SharePoint, Planner, Exchange, Graph API)}}
+  \caption{Ecosystem integration architecture}
+  \label{fig:ecosystem-integration}
+\end{figure}
 
-The three SENTINEL agents, Agent 1 for POI validation, Agent 2 for CAFF returns, and Agent 3 for distribution, are implemented as Python modules inside the FastAPI execution tier. The Spring Boot orchestration layer communicates with FastAPI using a REST proxy pattern. It forwards job submission requests to FastAPI, which starts a background task using FastAPI's `BackgroundTasks` mechanism, stores the job in an in-memory UUID job store, and exposes a status endpoint at `/api/jobs/\{id\}` that Spring Boot can poll.
+\subsection{SENTINEL Fleet Integration}
 
-The Angular frontend never communicates directly with FastAPI. All browser requests pass through Spring Boot, which verifies authentication and authorisation before forwarding to the execution tier. FastAPI therefore operates entirely within the trusted internal network and does not require its own authentication mechanism.
+The three agents run as Python modules inside the FastAPI tier. Spring Boot proxies job submissions to FastAPI, which runs them as background tasks, stores them in a UUID job store, and exposes a status endpoint for polling. The Angular client never talks to FastAPI directly — every request is authenticated and authorised by Spring Boot first, so FastAPI operates entirely within the trusted network without its own auth layer. Captured stdout/stderr from each run is exposed through the job store, powering the dashboard's live log view.
 
-The FastAPI execution tier also captures the standard output and error output of each agent run and makes it available through the job store endpoint. This allows the Angular dashboard to display live logs to the Pilot during agent execution.
+\subsection{FiberGate AI Service Integration}
 
-\subsection{FiberGate AI Service Integration and Result Consumption}
+When a dossier is submitted, Spring Boot stores the files in Blob Storage and notifies FastAPI, which runs Tesseract 5 OCR, feeds tokens and layout coordinates to LayoutLMv3 in a single forward pass, applies the confidence-gated policy, and returns structured JSON. Spring Boot persists the results to \texttt{document\_extractions} and notifies the frontend; consultant corrections are written to \texttt{field\_corrections} for the next retraining cycle. The active model version, reported via \texttt{/health}, is visible to the SDM in the administration module.
 
-The FiberGate AI Service runs as a dedicated endpoint within the FastAPI tier. When a dossier is submitted for analysis, the Angular client sends the document files to Spring Boot, which stores them temporarily in Azure Blob Storage and notifies FastAPI. FastAPI retrieves the files, runs the Tesseract 5 OCR pipeline, passes the resulting tokens and layout coordinates to the LayoutLMv3 classifier and extractor in a single forward pass, applies the confidence-gated policy, and returns a structured JSON payload to Spring Boot.
+\subsection{Microsoft 365 Integration}
 
-Spring Boot writes the extraction results to the `document\_extractions` table, linked to the dossier record, and notifies the Angular frontend that the review task is ready. The consultant then uses the AI results interface described in Section 6.2.4 to review and confirm the extracted values. Any corrections are saved to the `field\_corrections` table and are included in the next retraining cycle.
+SharePoint SUIVI is the authoritative dossier list, Planner holds task assignments, and Exchange delivers the Agilis/GedAffaire trigger emails. Two mechanisms bridge the platform to this ecosystem: \emph{Power Automate cloud flows} handle high-frequency, event-driven updates — for example, Agent 1's webhook triggers a seven-step flow that updates SUIVI, creates a Planner task, and assigns it via an Entra ID lookup, while Agent 2 uses a simpler dedicated flow for CAFF routing; and \emph{Microsoft Graph API} calls, authenticated via managed identities with minimal OAuth2 scopes (\texttt{Mail.Send}, \texttt{Tasks.ReadWrite}, \texttt{Sites.ReadWrite.All}), handle lower-frequency operations such as directory lookups, Teams notifications, and SharePoint queries.
 
-The active model version is reported by the FastAPI `/health` endpoint and displayed in the system administration module, giving the SDM visibility into which model checkpoint is currently in production.
+\subsection{End-to-End Workflow}
 
-\subsection{Microsoft 365 Integration via Power Automate Connectors}
+The integrations combine into a complete LOC PAR lifecycle: Agent 1 detects the Agilis confirmation email, extracts six fields, and triggers the SUIVI/Planner update; in parallel, Agent 3 classifies the daily 112-file batch, assigns consultants by continuity-preserving round robin, and dispatches Planner tasks via Power Automate in under four minutes. Agent 2 routes each CAFF return within sixty seconds regardless of arrival time, eliminating the previous 1-day KPI miss. For completeness validation, the consultant uploads documents to the AI interface, which classifies and extracts fields in under thirty seconds per dossier, reducing what was a manual reading and entry task to a review-and-confirm interaction.
 
-Microsoft 365 serves as the operational data layer for the Guichet OI unit. SharePoint SUIVI is the authoritative list of active dossiers. Microsoft Planner holds the task assignments. Microsoft Exchange receives the trigger emails from Agilis for Agent 1 and from GedAffaire for Agent 2. The FiberGate platform connects to this ecosystem through two mechanisms.
-
-Power Automate cloud flows handle the event-driven integrations that run at high frequency. When Agent 1 processes a POI confirmation email, it sends a webhook POST to a Power Automate flow that runs seven steps: it looks up the SUIVI row by OEIE code, updates the row with the extracted fields, creates a Planner task in the correct bucket, and assigns it to the responsible consultant using a Microsoft Entra ID identity lookup. Agent 2 uses a simpler dedicated flow for CAFF return routing. These flows run entirely within the Microsoft 365 tenant and require no persistent server-side state.
-
-Microsoft Graph API calls handle lower-frequency integrations that require more control, such as user directory lookups during account provisioning, Teams notifications for deployment events and errors, and SharePoint list queries for dossier context. Graph API calls from the Spring Boot layer use managed identities for authentication, with OAuth2 scopes limited to the minimum necessary: Mail.Send, Tasks.ReadWrite, and Sites.ReadWrite.All.
-
-\subsection{End-to-End Integrated Business Workflow}
-
-The integrations described above form a complete automated workflow for the LOC PAR demand lifecycle.
-
-When a new PAR connection request arrives, the Agilis system sends a confirmation email to the shared mailbox. Agent 1 detects the email during its polling cycle, extracts six fields (AS, OEIE, Affaire, Etablissement, PC code, and type\_demande\_POI), and triggers the Power Automate flow that updates SUIVI and creates the Planner task. Separately, the Pilot uploads the daily Full PAR France distribution file through the distribution panel, which starts Agent 3. Agent 3 classifies the 112 active files by demand type, assigns them to consultants using a round-robin method that preserves continuity for ongoing dossiers, and sends 112 individual Planner tasks through Power Automate in under four minutes.
-
-When a CAFF return arrives from GedAffaire, Agent 2 reads the most recent email, extracts the OEIE code, and routes the return to the assigned consultant in a single operation that creates a timestamped Planner task. This guarantees the 1-day KPI that was previously missed because of manual routing delays.
-
-For document completeness validation, the consultant uploads the dossier documents through the AI results interface. The FiberGate AI Service classifies each document and extracts the relevant fields in under thirty seconds per dossier. The consultant reviews the pre-filled CMS form, corrects any errors, and downloads the completed Excel artefact ready for submission to Agilis. The validation step, which previously required manual reading and data entry, is reduced to a review and confirmation interaction.
-
-\bigskip
+\begin{figure}[H]
+  \centering
+  \fbox{\parbox[c][5cm]{0.6\textwidth}{\centering\itshape Placeholder --- Figure 6.8\\End-to-end workflow diagram: from Agilis/GedAffaire email or PAR batch to Planner task and Agilis-ready Excel artefact}}
+  \caption{End-to-end integrated business workflow}
+  \label{fig:e2e-workflow}
+\end{figure}
 
 \section{System Testing and Validation}
 
-The platform was validated at three levels: unit and integration testing, user acceptance testing, and cloud deployment validation.
+The platform was validated at three levels: unit/integration testing, user acceptance testing, and cloud deployment validation.
 
-\subsection{Unit and Integration Testing Strategy}
+\subsection{Unit and Integration Testing}
 
-Unit tests for the Spring Boot layer are written with JUnit 5 and Mockito. Unit tests for the FastAPI agents are written with Pytest. Each unit test covers a single class or function in isolation, with all external dependencies replaced by mocks. The Spring Boot service layer achieves 74\% line coverage across 142 test cases. The FastAPI agent modules achieve 63\% coverage across 89 test cases. Most uncovered lines are exception-handling paths that handle malformed Exchange Server responses.
-
-Integration tests verify behaviour across component boundaries. The Spring Boot integration tests use an embedded H2 database and MockMvc to test the complete request-handling chain from an incoming HTTP request to a database write. The FastAPI integration tests use a mock Exchange Server to test the full agent execution loop without requiring a live mail server. Three end-to-end integration tests cover the most important workflows: job submission from the Angular client through Spring Boot to FastAPI and back; document analysis from file upload through OCR and model inference to a structured JSON output; and Power Automate webhook delivery from the agent to SharePoint SUIVI.
+Spring Boot unit tests (JUnit 5, Mockito) reach 74\% line coverage across 142 cases; FastAPI agent tests (Pytest) reach 63\% across 89 cases, with most gaps in exception-handling paths for malformed Exchange responses. Integration tests use an embedded H2 database with MockMvc for Spring Boot and a mock Exchange Server for the agents; three end-to-end tests cover the job-submission round trip, the document-analysis pipeline, and Power Automate webhook delivery to SharePoint.
 
 \subsection{User Acceptance Testing}
 
-User acceptance testing was conducted on the Staging environment with five participants: two Consultant-role users, two Pilot-role users, and the SDM. Each participant followed a structured test script covering their role's core workflows and recorded any problems encountered. Testing took place across two sessions of three hours each.
+Five participants (two Consultants, two Pilots, the SDM) ran structured test scripts across two three-hour sessions on Staging. Findings: confidence colour-coding was understood without explanation by all participants; live log streaming was rated highly useful by Pilots; a usability gap in the distribution upload (expected drag-and-drop, found only a file browser) was fixed by adding a drop zone before production; and the SDM's request for a resource-type filter in the audit trail was added as a dropdown before sign-off. All critical/high-priority issues were resolved before the production gate.
 
-The main outcomes of the testing sessions were the following. The confidence colour-coding in the AI results interface was understood without explanation by all five participants. The live log streaming in the automation panels was rated as particularly useful by both Pilot users, who previously had no way of seeing what an agent was doing while it ran. A usability problem was found in the distribution upload panel: users expected a drag-and-drop area but found only a file browser button. This was fixed before the production deployment by adding a drop zone with visual feedback. The SDM also requested an additional filter in the audit trail that would let users filter by resource type, such as dossier, user, or job. This filter was added as a dropdown before sign-off.
+\subsection{Cloud Deployment Validation}
 
-All critical and high-priority issues found during user acceptance testing were resolved before the production promotion gate.
-
-\subsection{Cloud Deployment and Infrastructure Validation}
-
-Cloud deployment validation covered three areas: infrastructure provisioning correctness, performance under realistic load, and failover behaviour.
-
-Infrastructure provisioning was validated by running Terraform plan and apply in a clean Azure subscription and checking that all resources were created with the expected configuration. These resources included the ACA environments, container revisions, managed PostgreSQL instance, Blob Storage accounts, Key Vault references, and VNet peerings. A checklist of 34 infrastructure assertions was verified manually after provisioning.
-
-Performance testing simulated twenty concurrent users submitting dossiers for AI analysis at the same time. Under this load, the Spring Boot layer maintained a median response time of 210 ms for authentication and metadata requests. The FastAPI AI inference endpoint processed one dossier every 28 seconds on the GPU container and handled up to two concurrent analyses without queuing delays. The full distribution batch of 112 tasks completed in three minutes and forty seconds, within the five-minute operational requirement.
-
-Failover was tested by stopping the primary PostgreSQL replica and verifying that the standby took over within ninety seconds with no data loss. Failover of ACA container revisions was tested by deploying a defective image through the blue-green mechanism and confirming that the health check triggered an automatic rollback to the previous revision within three minutes.
+Infrastructure provisioning was validated by a clean Terraform apply and a 34-point manual checklist (ACA environments, container revisions, PostgreSQL, Blob Storage, Key Vault, VNet peerings). Under a simulated load of twenty concurrent users, Spring Boot held a 210 ms median response time, the GPU inference endpoint processed one dossier every 28 seconds (up to two concurrent without queuing), and the 112-task distribution batch completed in 3 min 40 s — within the five-minute requirement. Failover tests confirmed a sub-90-second PostgreSQL standby promotion with no data loss, and a deliberately broken image triggered an automatic blue-green rollback within three minutes.
 
 \bigskip
 
 \section{Business Impact Assessment and Return on Investment}
 
-The FiberGate ecosystem, comprising the three SENTINEL agents, the FiberGate AI Service, and the unified web platform, produces measurable operational improvements for the Guichet OI: PAR France unit. This section quantifies those improvements in terms of time savings, cost reduction, and strategic value.
+\subsection{Operational Improvement Metrics}
 
-\subsection{Operational Improvement Metrics and Automation KPIs}
-
-Table 6.1 summarises the measured performance of each automated workflow before and after deployment.
+Table 6.1 summarises measured performance before and after deployment.
 
 \begin{table}[H]
   \centering
   \caption{Operational improvement metrics by automated workflow.}
-  \renewcommand{\arraystretch}{1.15}
+  \renewcommand{\arraystretch}{1.0}
   \footnotesize
   \begin{tabularx}{\textwidth}{|X|X|X|X|X|}
     \hline
@@ -290,57 +270,46 @@ Table 6.1 summarises the measured performance of each automated workflow before 
   \end{tabularx}
 \end{table}
 
-The largest improvement is in the POI validation workflow. Processing a single Agilis confirmation email, which involves reading the email, extracting six fields, updating the SUIVI row, and creating and assigning the Planner task, previously took a consultant between fifteen and twenty minutes. Agent 1 completes the same sequence in under sixty seconds. At the unit's volume of 112 files per day, this saves approximately five hours of analytical capacity each working day.
+The largest gain is in POI validation: a sequence that took a consultant 15--20 minutes (read, extract six fields, update SUIVI, create and assign the Planner task) now completes in under sixty seconds, saving roughly five analytical hours per day at the unit's volume of 112 files. CAFF routing, previously prone to being missed after 5 PM and causing KPI breaches, is now guaranteed within sixty seconds of arrival regardless of time of day.
 
-The CAFF returns workflow addresses both a quantitative and a qualitative problem. Returns arriving after 5 PM were often missed entirely, which caused KPI breaches. After deployment, every CAFF return is processed within sixty seconds of arrival regardless of the time of day, which eliminates the 1-day KPI miss completely.
+\begin{figure}[H]
+  \centering
+  \fbox{\parbox[c][4.5cm]{0.55\textwidth}{\centering\itshape Placeholder --- Figure 6.9\\Bar chart: per-task processing time before vs.\ after automation, by workflow}}
+  \caption{Before/after processing-time comparison}
+  \label{fig:impact-chart}
+\end{figure}
 
-\subsection{Time Reduction and Cost Savings Analysis}
+\subsection{Time and Cost Savings}
 
-The Guichet OI unit employs fifteen consultants. Based on operational data collected during the proof-of-concept period, the average time to handle one file is forty-five minutes. The three automated workflows account for the following portions of that time. POI email processing takes approximately twenty minutes per affected file. CAFF return routing takes approximately ten minutes per return. Daily distribution takes between thirty and forty-five minutes in total for the Pilot, which is equivalent to between sixteen and twenty-four seconds per file.
-
-After automation, each of these tasks requires only a review and confirmation step, reducing the time per file to approximately two minutes.
-
-Using a fully loaded consultant cost of 45 euros per hour and a volume of 112 files per day across 220 working days per year, the projected annual time saving is approximately 12,320 hours of analytical work. At that cost rate, this corresponds to an estimated annual saving of 554,400 euros, or roughly 37,000 euros per consultant per year. The capital cost of the platform development is recovered within the first two months of production operation.
+The fifteen-consultant unit currently spends an average of forty-five minutes per file (roughly twenty minutes on POI processing, ten on CAFF routing, and sixteen to twenty-four seconds per file on distribution). Automation reduces each of these to a two-minute review-and-confirm step. At a fully loaded cost of 45 €/hour and 112 files/day across 220 working days, the projected annual saving is approximately \textbf{12,320 hours} of analytical work — about \textbf{554,400 €} per year, or roughly 37,000 € per consultant, with the development cost recovered within the first two months of production.
 
 \subsection{Workforce Productivity Gains}
 
-The automation also changes the nature of the work consultants perform each day. Before deployment, approximately 55\% of a consultant's working time was spent on repetitive, low-complexity tasks such as reading emails, copying field values into SUIVI, creating Planner tasks, and distributing work. After deployment, that time is available for the analytical and relational work that cannot be automated: interpreting documents with ambiguous content, escalating complex cases, and communicating with municipal planning offices.
+Before deployment, about 55\% of consultant time went to repetitive low-complexity tasks (reading emails, copying fields, creating tasks, distributing work); that time is now redirected to analytical and relational work that cannot be automated. The AI review interface cuts per-dossier validation time from an estimated fifteen minutes to three to five minutes for well-structured (Strong-tier) cases. UAT participants confirmed feeling more in control of their workload, and Pilots specifically valued the new operational visibility from the live dashboard.
 
-The AI completeness review interface reduces the time spent on document validation. Instead of reading an entire dossier, the consultant reviews a pre-filled form and corrects only the fields where the model's confidence is low or where the extracted value is wrong. For well-structured dossiers where the model performs at the Strong tier, the per-dossier review time falls from an estimated fifteen minutes to approximately three to five minutes.
+\subsection{Strategic Value and Transferability}
 
-User feedback from the acceptance testing sessions supports these observations. All five participants reported feeling more control over their workload. Both Pilot users noted that the live automation dashboard gave them operational visibility they had not had before.
-
-\subsection{Strategic Value and Transferability of the FiberGate Blueprint}
-
-The FiberGate project produces a replicable engineering model that can be applied to similar administrative automation problems in the telecoms and infrastructure sectors.
-
-The model has four components that can be reused in other projects. First, the three-tier web platform combining Angular, Spring Boot, and FastAPI is not specific to this domain and can host any combination of automation agents and AI services behind a unified interface. Second, the Power Automate integration pattern, in which agents send a webhook with a minimal payload to trigger a cloud flow, can be used by any organisation that runs Microsoft 365 as its operational backbone. Third, the LayoutLMv3 fine-tuning pipeline can be adapted to other corpora of structured administrative PDFs with a field schema suited to the target domain. Fourth, the confidence-gated deployment policy and the correction-capture retraining loop offer a practical strategy for deploying document AI in regulated environments where full automation without human review is not acceptable.
-
-Orange France has expressed interest in applying the FiberGate model to other DINFRA units that manage similar administrative workflows. Three additional Orange departments and two external telecoms clients have been identified by the Amaris Consulting team as candidates where the model could be deployed with moderate adaptation effort.
+The FiberGate blueprint is reusable beyond this project through four components: a domain-agnostic three-tier platform (Angular/Spring Boot/FastAPI) that can host any agent-and-AI combination behind a unified interface; a lightweight webhook-to-cloud-flow integration pattern usable by any Microsoft 365–based organisation; an adaptable LayoutLMv3 fine-tuning pipeline for other structured-document corpora; and a confidence-gated, correction-capture deployment policy suited to regulated environments requiring human review. Orange France has expressed interest in extending the model to other DINFRA units, and the Amaris Consulting team has identified three additional Orange departments and two external clients as candidates for moderate-effort adaptation.
 
 \bigskip
 
 \section{System Limitations and Future Research Perspectives}
 
-The FiberGate platform in its current state has several limitations that define the scope of what it can do and indicate directions for future development.
+\textbf{Tabular field performance.} Three field types (\texttt{Nb\_log\_res}, \texttt{Nb\_log\_pro}, \texttt{Nombre\_Logement\_Lot\_MacroLot}) score zero span-F1 (Table 5.10), because LayoutLMv3's 512-token window cannot cover both a table's header row and its target cell in dense layouts. A longer-context model or a table-region pre-processing step is needed.
 
-\textbf{Model performance on tabular fields.} As documented in Chapter 5 (Table 5.10), three field types, Nb\_log\_res, Nb\_log\_pro, and Nombre\_Logement\_Lot\_MacroLot, have a span-level F1 score of zero in the deployed extractor. The cause is the 512-token context window of LayoutLMv3, which cannot cover both the column header row and the target data cell when they appear in a dense table. Solving this problem requires either a model with a longer context window or a pre-processing step that identifies and isolates table regions before sending them to the model.
+\textbf{OCR dependency.} Extraction quality is bounded by Tesseract 5 output; heavily stamped, low-contrast, or skewed pages degrade tokens and propagate errors. A pre-processing stage (deskew, denoise, contrast correction) and evaluation of a commercial OCR engine for low-quality documents are recommended.
 
-\textbf{OCR quality dependency.} The accuracy of the extraction pipeline is limited by the quality of Tesseract 5's OCR output. Documents with heavy stamping, low scan contrast, or significant page skew produce degraded tokens that introduce errors in the extractor. A future version should include a document pre-processing step covering deskewing, denoising, and contrast correction before OCR, and should evaluate a commercial OCR engine for documents that fall below a minimum quality threshold.
+\textbf{Single-page processing.} Multi-page documents cannot be analysed in one inference call, and there is no cross-page attention. A hierarchical document representation or an overlapping sliding window would address this.
 
-\textbf{Single-page processing.} The current implementation processes one page at a time. Multi-page documents that require information from more than one page cannot be analysed in a single inference call, and there is no attention mechanism shared between pages. A hierarchical document representation or a sliding window with page overlap would address this.
+\textbf{Exchange Server dependency.} Agents 1 and 2 rely on EWS/NTLM to an on-premises Exchange Server, requiring manual reconfiguration on certificate or mailbox changes. Migrating to Exchange Online with Graph API access would remove the VPN dependency and align this integration with the rest of the Azure-native architecture.
 
-\textbf{Exchange Server dependency.} Agent 1 and Agent 2 both depend on EWS/NTLM access to an on-premises Exchange Server. Any change to the Exchange certificate, NTLM settings, or mailbox delegation requires manual changes to the agent configuration. Migrating to Exchange Online with Graph API access would remove the VPN dependency and the self-signed certificate workaround, and would align this integration with the rest of the Azure-native architecture.
+\textbf{Retraining loop maturity.} The correction-capture and retraining framework (Chapter 5, Section 6.6.2) is fully implemented but has not yet completed a production cycle; the first cycle, expected after roughly two months of correction accumulation, will provide the first evidence of whether it can lift Critical-tier fields above the operational threshold.
 
-\textbf{Continuous-improvement loop maturity.} The correction capture and retraining framework described in Chapter 5 and Section 6.6.2 has been fully implemented but has not yet completed a retraining cycle in production. The first production cycle, expected after approximately two months of correction accumulation, will produce the first empirical evidence of whether the framework can raise the Critical-tier fields above the operational threshold. Until that data is available, the effectiveness of the retraining loop remains an engineering assumption.
-
-Future research directions for this work include: the use of few-shot prompting with large multimodal language models as an alternative to supervised fine-tuning that requires no annotation effort; active learning strategies that prioritise which corrections to annotate first in order to maximise the gain in per-annotation F1; and the development of an explainability layer that shows the consultant which regions of the document influenced each model prediction, making it possible to audit model behaviour rather than only accepting or rejecting its output.
+Future directions include few-shot prompting with large multimodal models as an annotation-free alternative to fine-tuning, active learning to prioritise which corrections to annotate first, and an explainability layer that highlights the document regions driving each prediction.
 
 \section*{Conclusion}
 \addcontentsline{toc}{section}{Conclusion}
 
-This chapter has documented the complete implementation of the FiberGate unified web platform and its connections to the SENTINEL automation fleet, the FiberGate AI Service, and the Microsoft 365 ecosystem. The three-tier architecture built with Angular, Spring Boot, and FastAPI provides a clear separation between the presentation, orchestration, and execution concerns. The JWT-based security model with role-based access control ensures that each actor, whether Consultant, Pilot, or SDM, operates within a well-defined permission boundary.
+This chapter documented the FiberGate unified web platform and its connections to the SENTINEL fleet, the AI Service, and Microsoft 365. The three-tier Angular/Spring Boot/FastAPI architecture cleanly separates presentation, orchestration, and execution; the JWT-based RBAC model keeps each actor — Consultant, Pilot, SDM — within a well-defined permission boundary; and the Azure deployment, driven by a GitHub Actions / Azure DevOps CI/CD pipeline with blue-green releases and infrastructure as code, delivers a reliable production service integrated into the team's existing SharePoint and Planner habits.
 
-The platform is deployed on Microsoft Azure with a CI/CD pipeline that spans GitHub Actions and Azure DevOps. It uses blue-green releases, infrastructure-as-code provisioning, and automated rollback to maintain a reliable production service. The Microsoft 365 integration via Power Automate and the Graph API connects the platform to the SharePoint and Planner workflows that the Guichet OI team already uses, without requiring changes to their daily habits.
-
-The business impact is measurable: a 95\% reduction in processing time for POI validation and distribution, the elimination of the 1-day CAFF KPI miss, and a projected annual saving of approximately 554,400 euros in recovered analytical capacity, with the development investment recovered within two months of going live. The FiberGate model, which combines automation agents, document AI, and a unified web platform over Microsoft 365, offers a replicable approach to administrative automation in the telecoms and infrastructure sector, with concrete extension opportunities already identified at three Orange France departments and two external clients.
+The measured business impact is substantial: a 95\% reduction in POI validation and distribution processing time, full elimination of the 1-day CAFF KPI miss, and a projected annual saving of approximately 554,400 € with the investment recovered within two months of going live. Combining automation agents, document AI, and a unified web platform over Microsoft 365, the FiberGate model offers a replicable blueprint for administrative automation in telecoms — with concrete extension opportunities already identified at three Orange France departments and two external clients.

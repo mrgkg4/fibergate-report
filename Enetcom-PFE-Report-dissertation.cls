@@ -5,7 +5,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Packages to use
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\usepackage[a4paper,left=2.5cm,right=2.5cm,top=2.5cm,bottom=2.5cm]{geometry}
+\usepackage[a4paper,left=2cm,right=2cm,top=2cm,bottom=2cm]{geometry}
 \usepackage{environ}
 %\usepackage[no-math]{fontspec}
 \usepackage{verse}
@@ -34,10 +34,12 @@
 \usepackage[T1]{fontenc}
 \usepackage{textcomp}
 \usepackage{fancyvrb}
+\usepackage{fvextra}
 \usepackage{etoolbox}
 % Compact all wide tables: smaller font + single line spacing inside tabularx,
 % so large multi-column tables occupy fewer pages while remaining legible.
 \AtBeginEnvironment{tabularx}{\footnotesize\setstretch{1}}
+\setlength{\tabcolsep}{4pt} % tighter horizontal cell padding (default 6pt)
 \usepackage[skins]{tcolorbox}
 \usepackage{babel}
 \usepackage{varioref}
@@ -129,7 +131,7 @@
  \newlength\Aux
   % chapter tiltes formatting
   \titleformat{\chapter}[display]%
-    {\fontsize{26}{6}\bfseries\selectfont%
+    {\fontsize{24}{29}\bfseries\selectfont%
       \settowidth\Aux{\textcolor{white}{\Huge\thechapter}}%
       \ifnum\Aux>\BoxWd%
         \setlength\BoxWd{\Aux}%
@@ -150,7 +152,7 @@
 
   % chapter tiltes formatting
   \titleformat{name=\chapter, numberless}[display]%
-    {\fontsize{26}{6}\bfseries\selectfont%
+    {\fontsize{24}{29}\bfseries\selectfont%
       \settowidth\Aux{\textcolor{white}{\Huge\thechapter}}%
       \ifnum\Aux>\BoxWd%
         \setlength\BoxWd{\Aux}%
@@ -170,7 +172,7 @@
     } %\centering
 
 % chapter tiltes spacing
-\titlespacing*{\chapter}{0pt}{0pt}{50pt}
+\titlespacing*{\chapter}{0pt}{0pt}{20pt}
 
 \titleformat{\section}[block]%
   {\Large\bfseries}{\thesection}%
@@ -267,8 +269,15 @@
 \renewcommand\theparagraph{\alph{paragraph})}
 \renewcommand\thesubparagraph{\roman{subparagraph}.}
 
-\setlength{\parskip}{1ex} % Spacing between paragraphs
+\setlength{\parskip}{0.5ex} % Spacing between paragraphs
 \setlist[enumerate]{itemsep=-0.35\baselineskip} % Spacing in enumerates
+
+% Tighten vertical space around floats (figures/tables) and their captions
+\setlength{\intextsep}{6pt}
+\setlength{\textfloatsep}{8pt}
+\setlength{\floatsep}{6pt}
+\setlength{\abovecaptionskip}{4pt}
+\setlength{\belowcaptionskip}{2pt}
 
 % Remove hyphens
 \hyphenpenalty=10000

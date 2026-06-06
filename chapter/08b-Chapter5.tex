@@ -31,7 +31,7 @@ Two parts of the first prototype worked well and were reused without changes: th
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.62\textwidth,max width=\textwidth]{images/image56.png}
+  \includegraphics[width=0.52\textwidth,max width=\textwidth]{images/image56.png}
   \caption{\textit{\textbf{Figure 5.1.} Architectural comparison between the first-generation (proof-of-concept) and the second-generation unified multimodal pipeline.}}
   \label{fig:image56}
 \end{figure}
@@ -45,7 +45,7 @@ Six open-source document AI models were studied. Each was compared on five crite
 \begin{table}[H]
   \centering
   \caption{\textit{\textbf{Table 5.1.} Comparison of open-source document AI models evaluated for the FiberGate AI Service.}}
-  \renewcommand{\arraystretch}{1.15}
+  \renewcommand{\arraystretch}{1.0}
   \footnotesize
   \begin{tabularx}{\textwidth}{|X|X|X|X|X|X|X|}
     \hline
@@ -70,7 +70,7 @@ The corpus is made of scanned administrative documents coming from French urban-
 \begin{table}[H]
   \centering
   \caption{\textit{\textbf{Table 5.2.} Document collection batches and annotation coverage.}}
-  \renewcommand{\arraystretch}{1.15}
+  \renewcommand{\arraystretch}{1.0}
   \footnotesize
   \begin{tabularx}{\textwidth}{|>{\raggedright\arraybackslash}p{2.3cm}|X|X|X|}
     \hline
@@ -89,7 +89,7 @@ We chose bounding boxes instead of free-text labels for two reasons. First, Layo
 \begin{table}[H]
   \centering
   \caption{\textit{\textbf{Table 5.3.} Document classes and associated extractable field classes.}}
-  \renewcommand{\arraystretch}{1.15}
+  \renewcommand{\arraystretch}{1.0}
   \begin{tabularx}{\textwidth}{|X|X|}
     \hline
     \textbf{Document Class} & \textbf{Field Classes} \\ \hline
@@ -104,7 +104,7 @@ We chose bounding boxes instead of free-text labels for two reasons. First, Layo
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.62\textwidth,max width=\textwidth]{images/image57.png}
+  \includegraphics[width=0.52\textwidth,max width=\textwidth]{images/image57.png}
   \caption{\textit{\textbf{Figure 5.3.} Label Studio annotation interface}}
   \label{fig:image57}
 \end{figure}
@@ -115,15 +115,15 @@ The 872 annotated documents were divided into training, validation, and test set
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.62\textwidth,max width=\textwidth]{images/image59.png}
-  \caption{\textit{\textbf{Figure 5.4.} Training data sample showing the structured JSON representation of an annotated document, including OCR tokens, normalised bounding boxes, and the assigned class and field labels.}}
+  \includegraphics[width=0.52\textwidth,max width=\textwidth]{images/image59.png}
+  \caption{\textit{\textbf{Figure 5.4.} Training data sample: structured JSON representation of an annotated document.}}
   \label{fig:image59}
 \end{figure}
 
 \begin{table}[H]
   \centering
   \caption{\textit{\textbf{Table 5.4.} Aggregate dataset statistics across all annotated documents.}}
-  \renewcommand{\arraystretch}{1.15}
+  \renewcommand{\arraystretch}{1.0}
   \begin{tabularx}{\textwidth}{|X|X|}
     \hline
     \textbf{Metric} & \textbf{Value} \\ \hline
@@ -146,7 +146,7 @@ The class distribution is very unbalanced. The Authorisation Permit class repres
 \begin{table}[H]
   \centering
   \caption{\textit{\textbf{Table 5.5.} Document classes with sample counts, proportions, and extracted fields.}}
-  \renewcommand{\arraystretch}{1.15}
+  \renewcommand{\arraystretch}{1.0}
   \footnotesize
   \begin{tabularx}{\textwidth}{|X|X|X|X|}
     \hline
@@ -162,8 +162,8 @@ The class distribution is very unbalanced. The Authorisation Permit class repres
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.62\textwidth,max width=\textwidth]{images/image60.png}
-  \caption{\textit{\textbf{Figure 5.5.} Annotated dataset distribution: per-class document counts illustrating the 8.1$\times$ class-imbalance ratio between Authorisation Permit and Mandate.}}
+  \includegraphics[width=0.52\textwidth,max width=\textwidth]{images/image60.png}
+  \caption{\textit{\textbf{Figure 5.5.} Annotated dataset distribution showing the 8.1$\times$ class-imbalance ratio.}}
   \label{fig:image60}
 \end{figure}
 
@@ -178,7 +178,7 @@ The weights were then normalised so that they sum to k, and were passed to the C
 \begin{table}[H]
   \centering
   \caption{\textit{\textbf{Table 5.6.} Inverse-frequency class weights applied to CrossEntropyLoss during classifier training.}}
-  \renewcommand{\arraystretch}{1.15}
+  \renewcommand{\arraystretch}{1.0}
   \footnotesize
   \begin{tabularx}{\textwidth}{|X|X|X|X|}
     \hline
@@ -204,8 +204,8 @@ The three streams are then projected into a shared 768-dimensional embedding spa
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.62\textwidth,max width=\textwidth]{images/image61.png}
-  \caption{\textit{\textbf{Figure 5.6.} LayoutLMv3 multimodal architecture: text tokens, two-dimensional spatial layout, and page-image patches are encoded jointly in a unified self-attention transformer. (Adapted by the authors from Huang et al., 2022, Microsoft Research.)}}
+  \includegraphics[width=0.52\textwidth,max width=\textwidth]{images/image61.png}
+  \caption{\textit{\textbf{Figure 5.6.} LayoutLMv3 architecture jointly encoding text, layout, and image patches (adapted from Huang et al., 2022).}}
   \label{fig:image61}
 \end{figure}
 
@@ -240,7 +240,7 @@ The classifier is trained with the AdamW optimiser at a learning rate of 2 $\tim
 \begin{table}[H]
   \centering
   \caption{\textit{\textbf{Table 5.7.} Document classifier training configuration.}}
-  \renewcommand{\arraystretch}{1.15}
+  \renewcommand{\arraystretch}{1.0}
   \begin{tabularx}{\textwidth}{|X|X|X|}
     \hline
     \textbf{Hyperparameter} & \textbf{Value} & \textbf{Rationale} \\ \hline
@@ -264,8 +264,8 @@ Turning Label Studio bounding-box annotations into per-token training targets is
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.62\textwidth,max width=\textwidth]{images/image62.png}
-  \caption{\textit{\textbf{Figure 5.7.} Field-extraction flow with BIO tagging: annotation bounding boxes are converted into per-token labels through IoU-based matching and span reconstruction.}}
+  \includegraphics[width=0.52\textwidth,max width=\textwidth]{images/image62.png}
+  \caption{\textit{\textbf{Figure 5.7.} Field-extraction flow converting annotation boxes into per-token BIO labels.}}
   \label{fig:image62}
 \end{figure}
 
@@ -281,7 +281,7 @@ The 0.30 IoU cut-off was not assumed but selected empirically on a held-out subs
 \begin{table}[H]
   \centering
   \caption{\textit{\textbf{Table 5.8a.} IoU-threshold sensitivity for annotation-to-token matching (held-out subset of fifty pages).}}
-  \renewcommand{\arraystretch}{1.2}
+  \renewcommand{\arraystretch}{1.0}
   \footnotesize
   \begin{tabularx}{\textwidth}{|X|X|X|X|}
     \hline
@@ -298,8 +298,8 @@ The resulting token-label distribution is shown in Figure 5.8. The O class repre
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.62\textwidth,max width=\textwidth]{images/image63.png}
-  \caption{\textit{\textbf{Figure 5.8.} Token-label distribution in the extractor training corpus. The O class accounts for 95.2\% of training tokens, against 1.6\% for B- tokens and 3.2\% for I- tokens.}}
+  \includegraphics[width=0.52\textwidth,max width=\textwidth]{images/image63.png}
+  \caption{\textit{\textbf{Figure 5.8.} Token-label distribution in the extractor training corpus.}}
   \label{fig:image63}
 \end{figure}
 
@@ -310,7 +310,7 @@ The extractor is initialised with the trained backbone weights of the classifier
 \begin{table}[H]
   \centering
   \caption{\textit{\textbf{Table 5.8.} Side-by-side training configuration of the classifier and extractor heads.}}
-  \renewcommand{\arraystretch}{1.15}
+  \renewcommand{\arraystretch}{1.0}
   \begin{tabularx}{\textwidth}{|X|X|X|}
     \hline
     \textbf{Configuration} & \textbf{Classifier} & \textbf{Extractor} \\ \hline
@@ -337,7 +337,7 @@ The classifier reaches an overall accuracy of 87.7\% on the held-out test set, w
 \begin{table}[H]
   \centering
   \caption{\textit{\textbf{Table 5.9.} Document-classifier per-class metrics on the 133-document held-out test set.}}
-  \renewcommand{\arraystretch}{1.15}
+  \renewcommand{\arraystretch}{1.0}
   \footnotesize
   \begin{tabularx}{\textwidth}{|X|X|X|X|X|}
     \hline
@@ -356,26 +356,26 @@ The Information Sheet class gets the highest F1 (0.98), which can be explained b
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.62\textwidth,max width=\textwidth]{images/image64.png}
+  \includegraphics[width=0.52\textwidth,max width=\textwidth]{images/image64.png}
   \caption{\textit{\textbf{Figure 5.9.} Per-class F1 scores on the test set, document classifier.}}
   \label{fig:image64}
 \end{figure}
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.62\textwidth,max width=\textwidth]{images/image65.png}
+  \includegraphics[width=0.52\textwidth,max width=\textwidth]{images/image65.png}
   \caption{\textit{\textbf{Figure 5.10.} Classifier training dynamics}}
   \label{fig:image65}
 \end{figure}
 
 \subsection{Field Extraction Performance Analysis}
 
-On the 133-document held-out test set, the best extractor checkpoint (step 301, models/extractor\_v3) reaches a span-level macro-F1 of 0.448 across the twelve fields of the schema. The best F1 observed on the validation set during training was 0.620. Performance varies considerably across fields. Two fields exceed F1 = 0.75 and reach the threshold at which automated extraction can reasonably replace manual verification. Three fields, on the other hand, stay at F1 = 0.000 and need more annotated examples before they can be used in production. The full per-field results, taken directly from the trainer-state log of the deployed checkpoint, are reported in Table 5.10.
+On the 133-document held-out test set, the best extractor checkpoint (step 301, models/extractor\_v3) reaches a span-level macro-F1 of 0.448 across the twelve fields of the schema. The best F1 observed on the validation set during training was 0.450. Performance varies considerably across fields. Two fields exceed F1 = 0.75 and reach the threshold at which automated extraction can reasonably replace manual verification. Three fields, on the other hand, stay at F1 = 0.000 and need more annotated examples before they can be used in production. The full per-field results, taken directly from the trainer-state log of the deployed checkpoint, are reported in Table 5.10.
 
 \begin{table}[H]
   \centering
   \caption{\textit{\textbf{Table 5.10.} Per-field span-level metrics on the 133-document held-out test set}}
-  \renewcommand{\arraystretch}{1.15}
+  \renewcommand{\arraystretch}{1.0}
   \footnotesize
   \begin{tabularx}{\textwidth}{|X|X|X|X|X|X|}
     \hline
@@ -398,7 +398,7 @@ On the 133-document held-out test set, the best extractor checkpoint (step 301, 
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.62\textwidth,max width=\textwidth]{images/image66.png}
+  \includegraphics[width=0.52\textwidth,max width=\textwidth]{images/image66.png}
   \caption{\textit{\textbf{Figure 5.11.} Extractor training dynamics}}
   \label{fig:image66}
 \end{figure}
@@ -422,7 +422,7 @@ The two operating points of this policy --- the field-level F1 gate (0.70) and t
 \begin{table}[H]
   \centering
   \caption{\textit{\textbf{Table 5.10a.} Per-token confidence-gate sensitivity on automation-eligible fields (validation partition).}}
-  \renewcommand{\arraystretch}{1.2}
+  \renewcommand{\arraystretch}{1.0}
   \footnotesize
   \begin{tabularx}{\textwidth}{|X|X|X|X|}
     \hline
@@ -452,14 +452,14 @@ Both modules were kept from the proof of concept without changes. The correctnes
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.62\textwidth,max width=\textwidth]{images/image67.png}
+  \includegraphics[width=0.52\textwidth,max width=\textwidth]{images/image67.png}
   \caption{\textit{\textbf{Figure 5.13.} Inference output for an incomplete demand (DEMANDE INCOMPLETE)}}
   \label{fig:image67}
 \end{figure}
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.62\textwidth,max width=\textwidth]{images/image68.png}
+  \includegraphics[width=0.52\textwidth,max width=\textwidth]{images/image68.png}
   \caption{![][image69]}
   \label{fig:image68}
 \end{figure}
@@ -476,8 +476,8 @@ The continuous-improvement framework runs three coordinated activities in parall
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.62\textwidth,max width=\textwidth]{images/image70.png}
-  \caption{\textit{\textbf{Figure 5.15.} Continuous-improvement loop: correction capture, periodic retraining, evaluation and promotion, and inference auditability run in parallel with daily production inference.}}
+  \includegraphics[width=0.52\textwidth,max width=\textwidth]{images/image70.png}
+  \caption{\textit{\textbf{Figure 5.15.} Continuous-improvement loop running in parallel with daily production inference.}}
   \label{fig:image70}
 \end{figure}
 
