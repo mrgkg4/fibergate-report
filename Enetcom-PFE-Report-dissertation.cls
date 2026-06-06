@@ -34,6 +34,10 @@
 \usepackage[T1]{fontenc}
 \usepackage{textcomp}
 \usepackage{fancyvrb}
+\usepackage{etoolbox}
+% Compact all wide tables: smaller font + single line spacing inside tabularx,
+% so large multi-column tables occupy fewer pages while remaining legible.
+\AtBeginEnvironment{tabularx}{\footnotesize\setstretch{1}}
 \usepackage[skins]{tcolorbox}
 \usepackage{babel}
 \usepackage{varioref}

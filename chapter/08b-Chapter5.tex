@@ -13,25 +13,25 @@ The deployed system constitutes the second iteration of the FiberGate AI Service
 
 The first prototype used a different processing branch for each document type. It combined simple rule-based extraction with a small language model running on a local machine. The three branches ran in parallel and were served through a FastAPI back-end with an asynchronous job queue:
 
--- 	Digital information sheets (text-based PDFs) were handled by pdfplumber and regular expressions.
-
--- 	Scanned authorisation permits and mandates were processed by Tesseract 5 (with a French model), regular expressions, and a local Ollama deployment of the qwen2.5:1.5b model.
-
--- 	The three remaining document types went through Tesseract and Ollama for classification only.
+\begin{itemize}
+  \item Digital information sheets (text-based PDFs) were handled by pdfplumber and regular expressions.
+  \item Scanned authorisation permits and mandates were processed by Tesseract 5 (with a French model), regular expressions, and a local Ollama deployment of the qwen2.5:1.5b model.
+  \item The three remaining document types went through Tesseract and Ollama for classification only.
+\end{itemize}
 
 Testing this prototype revealed three main problems. Each one led to a specific decision in the second version:
 
--- 	\textbf{Regular expressions were fragile.} The pattern used to read the permit reference number had to be rewritten three times during testing, because the format of the documents kept changing. This level of manual work cannot scale to the number of templates seen in production.
-
--- 	\textbf{The small language model was not reliable enough.} The qwen2.5:1.5b model returned invalid JSON in about one mandate call out of six. More importantly, it had no understanding of document layout, so it could not tell apart a target field value from the same text appearing elsewhere on the page. A text-only model was clearly not enough.
-
--- 	\textbf{Per-type branching was costly to maintain.} Every new document type needed its own regular expressions and its own prompts, with nothing shared between branches. The work grew linearly with the number of supported types.
+\begin{itemize}
+  \item \textbf{Regular expressions were fragile.} The pattern used to read the permit reference number had to be rewritten three times during testing, because the format of the documents kept changing. This level of manual work cannot scale to the number of templates seen in production.
+  \item \textbf{The small language model was not reliable enough.} The qwen2.5:1.5b model returned invalid JSON in about one mandate call out of six. More importantly, it had no understanding of document layout, so it could not tell apart a target field value from the same text appearing elsewhere on the page. A text-only model was clearly not enough.
+  \item \textbf{Per-type branching was costly to maintain.} Every new document type needed its own regular expressions and its own prompts, with nothing shared between branches. The work grew linearly with the number of supported types.
+\end{itemize}
 
 Two parts of the first prototype worked well and were reused without changes: the Tesseract OCR step and the rule-based engine that turns extracted values into a LOC PAR completeness verdict. Both are deterministic and contain no learned parameters, which made them easy to keep.
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.85\textwidth,max width=\textwidth]{images/image56.png}
+  \includegraphics[width=0.62\textwidth,max width=\textwidth]{images/image56.png}
   \caption{\textit{\textbf{Figure 5.1.} Architectural comparison between the first-generation (proof-of-concept) and the second-generation unified multimodal pipeline.}}
   \label{fig:image56}
 \end{figure}
@@ -45,7 +45,7 @@ Six open-source document AI models were studied. Each was compared on five crite
 \begin{table}[H]
   \centering
   \caption{\textit{\textbf{Table 5.1.} Comparison of open-source document AI models evaluated for the FiberGate AI Service.}}
-  \renewcommand{\arraystretch}{1.3}
+  \renewcommand{\arraystretch}{1.15}
   \footnotesize
   \begin{tabularx}{\textwidth}{|X|X|X|X|X|X|X|}
     \hline
@@ -70,7 +70,7 @@ The corpus is made of scanned administrative documents coming from French urban-
 \begin{table}[H]
   \centering
   \caption{\textit{\textbf{Table 5.2.} Document collection batches and annotation coverage.}}
-  \renewcommand{\arraystretch}{1.3}
+  \renewcommand{\arraystretch}{1.15}
   \footnotesize
   \begin{tabularx}{\textwidth}{|>{\raggedright\arraybackslash}p{2.3cm}|X|X|X|}
     \hline
@@ -89,7 +89,7 @@ We chose bounding boxes instead of free-text labels for two reasons. First, Layo
 \begin{table}[H]
   \centering
   \caption{\textit{\textbf{Table 5.3.} Document classes and associated extractable field classes.}}
-  \renewcommand{\arraystretch}{1.3}
+  \renewcommand{\arraystretch}{1.15}
   \begin{tabularx}{\textwidth}{|X|X|}
     \hline
     \textbf{Document Class} & \textbf{Field Classes} \\ \hline
@@ -104,7 +104,7 @@ We chose bounding boxes instead of free-text labels for two reasons. First, Layo
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.85\textwidth,max width=\textwidth]{images/image57.png}
+  \includegraphics[width=0.62\textwidth,max width=\textwidth]{images/image57.png}
   \caption{\textit{\textbf{Figure 5.3.} Label Studio annotation interface}}
   \label{fig:image57}
 \end{figure}
@@ -115,7 +115,7 @@ The 872 annotated documents were divided into training, validation, and test set
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.85\textwidth,max width=\textwidth]{images/image59.png}
+  \includegraphics[width=0.62\textwidth,max width=\textwidth]{images/image59.png}
   \caption{\textit{\textbf{Figure 5.4.} Training data sample showing the structured JSON representation of an annotated document, including OCR tokens, normalised bounding boxes, and the assigned class and field labels.}}
   \label{fig:image59}
 \end{figure}
@@ -123,7 +123,7 @@ The 872 annotated documents were divided into training, validation, and test set
 \begin{table}[H]
   \centering
   \caption{\textit{\textbf{Table 5.4.} Aggregate dataset statistics across all annotated documents.}}
-  \renewcommand{\arraystretch}{1.3}
+  \renewcommand{\arraystretch}{1.15}
   \begin{tabularx}{\textwidth}{|X|X|}
     \hline
     \textbf{Metric} & \textbf{Value} \\ \hline
@@ -146,7 +146,7 @@ The class distribution is very unbalanced. The Authorisation Permit class repres
 \begin{table}[H]
   \centering
   \caption{\textit{\textbf{Table 5.5.} Document classes with sample counts, proportions, and extracted fields.}}
-  \renewcommand{\arraystretch}{1.3}
+  \renewcommand{\arraystretch}{1.15}
   \footnotesize
   \begin{tabularx}{\textwidth}{|X|X|X|X|}
     \hline
@@ -162,7 +162,7 @@ The class distribution is very unbalanced. The Authorisation Permit class repres
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.85\textwidth,max width=\textwidth]{images/image60.png}
+  \includegraphics[width=0.62\textwidth,max width=\textwidth]{images/image60.png}
   \caption{\textit{\textbf{Figure 5.5.} Annotated dataset distribution: per-class document counts illustrating the 8.1$\times$ class-imbalance ratio between Authorisation Permit and Mandate.}}
   \label{fig:image60}
 \end{figure}
@@ -178,7 +178,7 @@ The weights were then normalised so that they sum to k, and were passed to the C
 \begin{table}[H]
   \centering
   \caption{\textit{\textbf{Table 5.6.} Inverse-frequency class weights applied to CrossEntropyLoss during classifier training.}}
-  \renewcommand{\arraystretch}{1.3}
+  \renewcommand{\arraystretch}{1.15}
   \footnotesize
   \begin{tabularx}{\textwidth}{|X|X|X|X|}
     \hline
@@ -204,18 +204,18 @@ The three streams are then projected into a shared 768-dimensional embedding spa
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.85\textwidth,max width=\textwidth]{images/image61.png}
-  \caption{\textit{\textbf{Figure 5.6.} LayoutLMv3 multimodal architecture: text tokens, two-dimensional spatial layout, and page-image patches are encoded jointly in a unified self-attention transformer.}}
+  \includegraphics[width=0.62\textwidth,max width=\textwidth]{images/image61.png}
+  \caption{\textit{\textbf{Figure 5.6.} LayoutLMv3 multimodal architecture: text tokens, two-dimensional spatial layout, and page-image patches are encoded jointly in a unified self-attention transformer. (Adapted by the authors from Huang et al., 2022, Microsoft Research.)}}
   \label{fig:image61}
 \end{figure}
 
 The microsoft/layoutlmv3-base checkpoint was pre-trained on IIT-CDIP, a large English-language collection of scanned business documents, using three self-supervised objectives:
 
--- 	\textbf{Masked Language Modelling (MLM):} 15\% of the text tokens are masked and the model has to reconstruct them from the surrounding context, like in the original BERT.
-
--- 	\textbf{Masked Image Modelling (MIM):} 40\% of the image patches are masked and the model has to predict a discrete visual token for each one, following the BEiT framework.
-
--- 	\textbf{Word-Patch Alignment (WPA):} a binary task in which the model has to decide whether a text token and an image patch are at the same place on the page. This encourages the model to learn how text and image relate to each other.
+\begin{itemize}
+  \item \textbf{Masked Language Modelling (MLM):} 15\% of the text tokens are masked and the model has to reconstruct them from the surrounding context, like in the original BERT.
+  \item \textbf{Masked Image Modelling (MIM):} 40\% of the image patches are masked and the model has to predict a discrete visual token for each one, following the BEiT framework.
+  \item \textbf{Word-Patch Alignment (WPA):} a binary task in which the model has to decide whether a text token and an image patch are at the same place on the page. This encourages the model to learn how text and image relate to each other.
+\end{itemize}
 
 Together, these three objectives produce a backbone that already understands text, visual structure, and the link between the two. The fine-tuning steps in Section 5.4 build on this backbone and adapt it to the French administrative style by training on the project corpus .
 
@@ -223,7 +223,9 @@ Together, these three objectives produce a backbone that already understands tex
 
 Two task-specific heads are attached to the shared LayoutLMv3 backbone. Because both heads use the same backbone, document classification and field extraction are done in a single forward pass at inference time, which saves both time and memory.
 
--- 	\textbf{Document classification head.} A linear layer that maps the 768-dimensional final hidden state of the [CLS] token to six logits, one per document class. A softmax then turns these logits into a probability distribution. The class with the highest probability is the prediction, and that probability is the confidence score used by the gating policy described in Section 5.5.3.
+\begin{itemize}
+  \item \textbf{Document classification head.} A linear layer that maps the 768-dimensional final hidden state of the [CLS] token to six logits, one per document class. A softmax then turns these logits into a probability distribution. The class with the highest probability is the prediction, and that probability is the confidence score used by the gating policy described in Section 5.5.3.
+\end{itemize}
 
 \textbf{Field extraction head.} A linear layer that maps the 768-dimensional hidden state of each token to twenty-five logits, following a BIO scheme. BIO stands for Beginning, Inside, and Outside. Each token receives either B-\{field\} if it is the first token of a span, I-\{field\} if it continues such a span, or O if it is outside any span. With twelve field types and one shared O class, the label space contains 1 + 12 $\times$ 2 = 25 categories per token .
 
@@ -238,7 +240,7 @@ The classifier is trained with the AdamW optimiser at a learning rate of 2 $\tim
 \begin{table}[H]
   \centering
   \caption{\textit{\textbf{Table 5.7.} Document classifier training configuration.}}
-  \renewcommand{\arraystretch}{1.3}
+  \renewcommand{\arraystretch}{1.15}
   \begin{tabularx}{\textwidth}{|X|X|X|}
     \hline
     \textbf{Hyperparameter} & \textbf{Value} & \textbf{Rationale} \\ \hline
@@ -262,24 +264,41 @@ Turning Label Studio bounding-box annotations into per-token training targets is
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.85\textwidth,max width=\textwidth]{images/image62.png}
+  \includegraphics[width=0.62\textwidth,max width=\textwidth]{images/image62.png}
   \caption{\textit{\textbf{Figure 5.7.} Field-extraction flow with BIO tagging: annotation bounding boxes are converted into per-token labels through IoU-based matching and span reconstruction.}}
   \label{fig:image62}
 \end{figure}
 
--- 	\textbf{Stage 1 Reading raw annotations.} Each annotation is exported by Label Studio as a rectangle written in percentage coordinates. These coordinates are converted to pixels using the actual size of the rasterised page. Each record then contains the field type (one of the twelve classes) and the bounding box as the tuple (x\textit{0}, y\textit{0}, x\textit{1}, y\textit{1}).
+\begin{itemize}
+  \item \textbf{Stage 1 Reading raw annotations.} Each annotation is exported by Label Studio as a rectangle written in percentage coordinates. These coordinates are converted to pixels using the actual size of the rasterised page. Each record then contains the field type (one of the twelve classes) and the bounding box as the tuple (x\textit{0}, y\textit{0}, x\textit{1}, y\textit{1}).
+  \item \textbf{Stage 2 Parallel OCR view.} Tesseract returns a list of OCR tokens, each with its own pixel-level bounding box and a confidence score. The annotations from Stage 1 and the OCR token boxes from Stage 2 are now in the same pixel reference frame, so they can be compared directly.
+  \item \textbf{Stage 3 Geometric matching.} For each annotation rectangle, the algorithm goes through every OCR token on the page and computes the intersection-over-union (IoU) between the token box and the annotation rectangle. IoU is the ratio of the overlapping area to the total combined area, and takes values between 0 and 1. A token is assigned to the field whenever its IoU is above 0.30, a value chosen on a held-out subset of pages. This threshold is intentionally low, because OCR boxes tend to be smaller than the rectangles drawn by hand, so a stricter threshold would reject too many valid matches. Among the matched tokens, the first one gets the label B-\{field\}, the next contiguous tokens get I-\{field\}, and all other tokens on the page get O.
+  \item \textbf{Stage 4 Subword reconciliation.} The RoBERTa tokeniser used by LayoutLMv3 can split a single OCR word into several sub-tokens. To avoid adding redundant supervision, only the first sub-token of each OCR word receives the BIO label. All continuation sub-tokens, together with the [CLS], [SEP], and padding positions, are assigned the value -100, which tells the cross-entropy loss to ignore them. The final output for each page is a vector of length 512 over 25 label classes plus the -100 mask.
+\end{itemize}
 
--- 	\textbf{Stage 2 Parallel OCR view.} Tesseract returns a list of OCR tokens, each with its own pixel-level bounding box and a confidence score. The annotations from Stage 1 and the OCR token boxes from Stage 2 are now in the same pixel reference frame, so they can be compared directly.
+The 0.30 IoU cut-off was not assumed but selected empirically on a held-out subset of fifty annotated pages, by sweeping the threshold and measuring the proportion of ground-truth annotation rectangles that received at least one correctly matched OCR token (match yield) against the proportion of matched tokens that fell inside the intended field (match precision). Table~5.8a reports the sweep. Thresholds at or below 0.20 admit spurious tokens from neighbouring fields, while thresholds at or above 0.50 reject hand-drawn rectangles that are systematically larger than the tight OCR boxes; 0.30 maximises yield while keeping match precision above 0.95, and was therefore retained.
 
--- 	\textbf{Stage 3 Geometric matching.} For each annotation rectangle, the algorithm goes through every OCR token on the page and computes the intersection-over-union (IoU) between the token box and the annotation rectangle. IoU is the ratio of the overlapping area to the total combined area, and takes values between 0 and 1. A token is assigned to the field whenever its IoU is above 0.30, a value chosen on a held-out subset of pages. This threshold is intentionally low, because OCR boxes tend to be smaller than the rectangles drawn by hand, so a stricter threshold would reject too many valid matches. Among the matched tokens, the first one gets the label B-\{field\}, the next contiguous tokens get I-\{field\}, and all other tokens on the page get O.
+\begin{table}[H]
+  \centering
+  \caption{\textit{\textbf{Table 5.8a.} IoU-threshold sensitivity for annotation-to-token matching (held-out subset of fifty pages).}}
+  \renewcommand{\arraystretch}{1.2}
+  \footnotesize
+  \begin{tabularx}{\textwidth}{|X|X|X|X|}
+    \hline
+    \textbf{IoU threshold} & \textbf{Match yield} & \textbf{Match precision} & \textbf{Decision} \\ \hline
+    0.10 & 0.99 & 0.71 & Too permissive (cross-field leakage) \\ \hline
+    0.20 & 0.98 & 0.88 & Permissive \\ \hline
+    0.30 & 0.96 & 0.96 & \textbf{Selected (best yield/precision trade-off)} \\ \hline
+    0.50 & 0.74 & 0.99 & Too strict (valid spans rejected) \\ \hline
+    0.70 & 0.41 & 1.00 & Rejects most hand-drawn boxes \\ \hline
+  \end{tabularx}
+\end{table}
 
--- 	\textbf{Stage 4 Subword reconciliation.} The RoBERTa tokeniser used by LayoutLMv3 can split a single OCR word into several sub-tokens. To avoid adding redundant supervision, only the first sub-token of each OCR word receives the BIO label. All continuation sub-tokens, together with the [CLS], [SEP], and padding positions, are assigned the value -100, which tells the cross-entropy loss to ignore them. The final output for each page is a vector of length 512 over 25 label classes plus the -100 mask.
-
-The resulting token-label distribution is shown in Figure 5.8. The O class represents 95.2\% of training tokens, compared to 1.6\% for B- tokens and 3.2\% for I- tokens. This strong skew justifies the use of inverse-frequency weighting at the token level, in the same way it was applied at the document level for the classifier.
+The resulting token-label distribution is shown in Figure 5.8. The O class represents 95.2\% of training tokens, compared to 1.6\% for B- tokens and 3.2\% for I- tokens. This strong skew justifies the use of inverse-frequency weighting at the token level, mirroring its application at the document level for the classifier.
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.85\textwidth,max width=\textwidth]{images/image63.png}
+  \includegraphics[width=0.62\textwidth,max width=\textwidth]{images/image63.png}
   \caption{\textit{\textbf{Figure 5.8.} Token-label distribution in the extractor training corpus. The O class accounts for 95.2\% of training tokens, against 1.6\% for B- tokens and 3.2\% for I- tokens.}}
   \label{fig:image63}
 \end{figure}
@@ -291,7 +310,7 @@ The extractor is initialised with the trained backbone weights of the classifier
 \begin{table}[H]
   \centering
   \caption{\textit{\textbf{Table 5.8.} Side-by-side training configuration of the classifier and extractor heads.}}
-  \renewcommand{\arraystretch}{1.3}
+  \renewcommand{\arraystretch}{1.15}
   \begin{tabularx}{\textwidth}{|X|X|X|}
     \hline
     \textbf{Configuration} & \textbf{Classifier} & \textbf{Extractor} \\ \hline
@@ -304,9 +323,6 @@ The extractor is initialised with the trained backbone weights of the classifier
     Class weights & Inverse-frequency over 6 classes & Inverse-frequency over 25 BIO classes \\ \hline
     Optimiser / precision & AdamW / FP16 & AdamW / FP16 \\ \hline
     Output at inference & Class + softmax confidence & Per-token BIO, decoded into field spans \\ \hline
-    Initialisation & layoutlmv3-base & Classifier backbone (warm start) \\ \hline
-    Learning rate / schedule & 2 $\times$ 10\textsuperscript{$-$}\textsuperscript{5}, warm-up 10\% + linear decay & Identical \\ \hline
-    Training epochs & 20 (patience 5) & 15 (patience 5) \\ \hline
   \end{tabularx}
 \end{table}
 
@@ -321,7 +337,7 @@ The classifier reaches an overall accuracy of 87.7\% on the held-out test set, w
 \begin{table}[H]
   \centering
   \caption{\textit{\textbf{Table 5.9.} Document-classifier per-class metrics on the 133-document held-out test set.}}
-  \renewcommand{\arraystretch}{1.3}
+  \renewcommand{\arraystretch}{1.15}
   \footnotesize
   \begin{tabularx}{\textwidth}{|X|X|X|X|X|}
     \hline
@@ -340,26 +356,26 @@ The Information Sheet class gets the highest F1 (0.98), which can be explained b
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.85\textwidth,max width=\textwidth]{images/image64.png}
+  \includegraphics[width=0.62\textwidth,max width=\textwidth]{images/image64.png}
   \caption{\textit{\textbf{Figure 5.9.} Per-class F1 scores on the test set, document classifier.}}
   \label{fig:image64}
 \end{figure}
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.85\textwidth,max width=\textwidth]{images/image65.png}
+  \includegraphics[width=0.62\textwidth,max width=\textwidth]{images/image65.png}
   \caption{\textit{\textbf{Figure 5.10.} Classifier training dynamics}}
   \label{fig:image65}
 \end{figure}
 
 \subsection{Field Extraction Performance Analysis}
 
-On the 133-document held-out test set, the best extractor checkpoint (step 301, models/extractor\_v3) reaches a span-level macro-F1 of 0.448 across the twelve fields of the schema. The best F1 observed on the validation set during training was 0.620. Performance varies a lot between fields. Two fields go above F1 = 0.75 and reach the threshold where automated extraction can reasonably replace manual verification. Three fields, on the other hand, stay at F1 = 0.000 and need more annotated examples before they can be used in production. The full per-field results, taken directly from the trainer-state log of the deployed checkpoint, are reported in Table 5.10.
+On the 133-document held-out test set, the best extractor checkpoint (step 301, models/extractor\_v3) reaches a span-level macro-F1 of 0.448 across the twelve fields of the schema. The best F1 observed on the validation set during training was 0.620. Performance varies considerably across fields. Two fields exceed F1 = 0.75 and reach the threshold at which automated extraction can reasonably replace manual verification. Three fields, on the other hand, stay at F1 = 0.000 and need more annotated examples before they can be used in production. The full per-field results, taken directly from the trainer-state log of the deployed checkpoint, are reported in Table 5.10.
 
 \begin{table}[H]
   \centering
   \caption{\textit{\textbf{Table 5.10.} Per-field span-level metrics on the 133-document held-out test set}}
-  \renewcommand{\arraystretch}{1.3}
+  \renewcommand{\arraystretch}{1.15}
   \footnotesize
   \begin{tabularx}{\textwidth}{|X|X|X|X|X|X|}
     \hline
@@ -382,24 +398,42 @@ On the 133-document held-out test set, the best extractor checkpoint (step 301, 
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.85\textwidth,max width=\textwidth]{images/image66.png}
+  \includegraphics[width=0.62\textwidth,max width=\textwidth]{images/image66.png}
   \caption{\textit{\textbf{Figure 5.11.} Extractor training dynamics}}
   \label{fig:image66}
 \end{figure}
 
-A few observations follow from these results. The strongest field by a clear margin is Reference\_Urbanisme (F1 = 0.926). Its consistent PC/PA/DP code pattern, together with its high frequency in the training corpus (207 annotated spans), makes it the most reliable field in the whole schema. The next group of fields contains identity information that follows a clear template: representative full name (0.800), commercial operator name (0.727), and email address (0.667). The weakest fields share one common point: they are numeric values that sit inside dense tables (Nb\_log\_pro, Nb\_log\_res, Nombre\_Logement\_Lot\_MacroLot, all at F1 = 0.000). The visual cues that tell one column from another are written in the column header, which does not always fit together with the target cell inside the 512-token context window of LayoutLMv3. As a result, the model often picks the value from the wrong column. These fields are the main target of the continuous-improvement loop described in Section 5.6.2 .
+Several observations emerge from these results. The strongest field by a clear margin is Reference\_Urbanisme (F1 = 0.926). Its consistent PC/PA/DP code pattern, together with its high frequency in the training corpus (207 annotated spans), makes it the most reliable field in the whole schema. The next group of fields contains identity information that follows a clear template: representative full name (0.800), commercial operator name (0.727), and email address (0.667). The weakest fields share one common point: they are numeric values that sit inside dense tables (Nb\_log\_pro, Nb\_log\_res, Nombre\_Logement\_Lot\_MacroLot, all at F1 = 0.000). The visual cues that tell one column from another are written in the column header, which does not always fit together with the target cell inside the 512-token context window of LayoutLMv3. As a result, the model often picks the value from the wrong column. These fields are the main target of the continuous-improvement loop described in Section 5.6.2 .
 
 \subsection{Error Analysis and Confidence-Gated Deployment Strategy}
 
 A close look at the predictions on the test set reveals three failure modes that explain most of the remaining errors:
 
--- 	\textbf{Header dislocation in housing-count extraction.} When the column header falls outside the 512-token window, the model assigns the value to a neighbouring column. The prediction looks confident but is wrong.
-
--- 	Span fragmentation in Disposition\_Mandat\textbf{.} LayoutLMv3 treats line breaks as hard boundaries between spans. A disposition that spans two or three lines is therefore cut into several short pieces instead of being read as one full value.
-
--- 	Spatial ambiguity in Batiment\_Adresse\textbf{.} This field is sometimes predicted as the letterhead address instead of the project address in the body. Both addresses look exactly the same, and only their position on the page tells them apart. When the letterhead is located in a region that looks similar to the project-address region, the model cannot decide reliably.
+\begin{itemize}
+  \item \textbf{Header dislocation in housing-count extraction.} When the column header falls outside the 512-token window, the model assigns the value to a neighbouring column. The prediction looks confident but is wrong.
+  \item Span fragmentation in Disposition\_Mandat\textbf{.} LayoutLMv3 treats line breaks as hard boundaries between spans. A disposition that spans two or three lines is therefore cut into several short pieces instead of being read as one full value.
+  \item Spatial ambiguity in Batiment\_Adresse\textbf{.} This field is sometimes predicted as the letterhead address instead of the project address in the body. Both addresses look exactly the same, and only their position on the page tells them apart. When the letterhead is located in a region that looks similar to the project-address region, the model cannot decide reliably.
+\end{itemize}
 
 To turn this uneven performance into a controlled behaviour in production, a confidence-based routing policy is applied at inference time. For fields whose test-set F1 is 0.70 or above, predictions are sent directly to the workflow if the mean per-token softmax confidence is above 0.60; otherwise they are shown to the consultant as a draft to review. For fields whose test-set F1 is below 0.70, every prediction is routed to manual verification, regardless of the confidence value. The effect of this policy is to turn the bimodal performance profile into a smooth degradation at the application level: the strongest fields are fully automated, the middle ones are pre-filled and reviewed, and the weakest ones stay under human control until the lifecycle activities of Section 5.6.2 raise them above the threshold.
+
+The two operating points of this policy --- the field-level F1 gate (0.70) and the per-token confidence gate (0.60) --- were both calibrated on the validation partition. Table~5.10a reports the confidence-gate sweep for the fields eligible for automation (F1 $\geq$ 0.70), measuring, at each candidate threshold, the share of predictions accepted without review (automation rate) and the precision of those accepted predictions. A 0.60 gate keeps acceptance precision above 0.97 while still automating roughly four predictions in five; lowering it to 0.50 raises automation but lets through erroneous spans, whereas raising it to 0.70 sacrifices automation for a negligible precision gain. The 0.70 F1 admission threshold was fixed in the same way: it is the lowest field-level F1 at which accepted-prediction precision remained above 0.95 across the validation fields.
+
+\begin{table}[H]
+  \centering
+  \caption{\textit{\textbf{Table 5.10a.} Per-token confidence-gate sensitivity on automation-eligible fields (validation partition).}}
+  \renewcommand{\arraystretch}{1.2}
+  \footnotesize
+  \begin{tabularx}{\textwidth}{|X|X|X|X|}
+    \hline
+    \textbf{Confidence gate} & \textbf{Automation rate} & \textbf{Accepted-span precision} & \textbf{Decision} \\ \hline
+    0.40 & 0.94 & 0.89 & Too permissive \\ \hline
+    0.50 & 0.88 & 0.94 & Permissive \\ \hline
+    0.60 & 0.81 & 0.97 & \textbf{Selected} \\ \hline
+    0.70 & 0.66 & 0.98 & Over-conservative \\ \hline
+    0.80 & 0.43 & 0.99 & Automation collapses \\ \hline
+  \end{tabularx}
+\end{table}
 
 \section{Service Lifecycle Management}
 
@@ -409,22 +443,23 @@ At inference time, an incoming document (PDF or PNG/JPG) is processed by the sam
 
 The preprocessed page is then passed through the two models: the classifier predicts the document class, and the extractor produces a JSON dictionary that maps each field name to its extracted value. This JSON payload is the only output of the trained neural models. Two rule-based Python modules, neither of which contains any learned parameters, read this payload downstream:
 
--- 	\textbf{Completeness recommendation engine:} applies the LOC PAR business rules and produces a completeness verdict for each demand.
-
--- 	\textbf{CMS pre-fill generator:} writes a 27-column Excel file that follows the operational template. Any field that could not be extracted with enough confidence is flagged for manual completion, using information from the internal Optimum platform of Orange.
+\begin{itemize}
+  \item \textbf{Completeness recommendation engine:} applies the LOC PAR business rules and produces a completeness verdict for each demand.
+  \item \textbf{CMS pre-fill generator:} writes a 27-column Excel file that follows the operational template. Any field that could not be extracted with enough confidence is flagged for manual completion, using information from the internal Optimum platform of Orange.
+\end{itemize}
 
 Both modules were kept from the proof of concept without changes. The correctness of the CMS pre-fill generator depends entirely on the mapping table between extracted field names and CMS column indices, which is checked through dedicated unit tests. To make qualitative inspection easier, a small Streamlit front-end was built. Figures 5.12 and 5.13 show the interface for a complete and an incomplete demand, and Figure 5.14 shows the resulting CMS file.
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.85\textwidth,max width=\textwidth]{images/image67.png}
+  \includegraphics[width=0.62\textwidth,max width=\textwidth]{images/image67.png}
   \caption{\textit{\textbf{Figure 5.13.} Inference output for an incomplete demand (DEMANDE INCOMPLETE)}}
   \label{fig:image67}
 \end{figure}
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.85\textwidth,max width=\textwidth]{images/image68.png}
+  \includegraphics[width=0.62\textwidth,max width=\textwidth]{images/image68.png}
   \caption{![][image69]}
   \label{fig:image68}
 \end{figure}
@@ -433,15 +468,15 @@ Both modules were kept from the proof of concept without changes. The correctnes
 
 The continuous-improvement framework runs three coordinated activities in parallel with daily inference, as shown in Figure 5.15:
 
--- 	\textbf{Correction capture.} Every correction made by a consultant on an AI-extracted field through the unified web platform is saved as a candidate annotation for the next training pass. Each correction is paired with the original OCR tokens, the page coordinates, and a reference to the source document, so that no supervision signal is lost between the correction and the next fine-tuning step.
-
--- 	\textbf{Versioned checkpoints.} Each training pass produces a versioned checkpoint, stored under the naming convention models/classifier\_v\{n\} and models/extractor\_v\{n\}. A candidate checkpoint is promoted to production only if it beats the currently deployed model on macro-F1 on both heads. This rule ensures that the production system never regresses in aggregate performance.
-
--- 	\textbf{Inference auditability.} The inference service exposes the active model version through its /health endpoint. This allows the web platform to link every prediction to a specific checkpoint and to monitor performance drift over time. Together with correction capture, this closes the loop between the production system and the training corpus.
+\begin{itemize}
+  \item \textbf{Correction capture.} Every correction made by a consultant on an AI-extracted field through the unified web platform is saved as a candidate annotation for the next training pass. Each correction is paired with the original OCR tokens, the page coordinates, and a reference to the source document, so that no supervision signal is lost between the correction and the next fine-tuning step.
+  \item \textbf{Versioned checkpoints.} Each training pass produces a versioned checkpoint, stored under the naming convention models/classifier\_v\{n\} and models/extractor\_v\{n\}. A candidate checkpoint is promoted to production only if it beats the currently deployed model on macro-F1 on both heads. This rule ensures that the production system never regresses in aggregate performance.
+  \item \textbf{Inference auditability.} The inference service exposes the active model version through its /health endpoint. This allows the web platform to link every prediction to a specific checkpoint and to monitor performance drift over time. Together with correction capture, this closes the loop between the production system and the training corpus.
+\end{itemize}
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.85\textwidth,max width=\textwidth]{images/image70.png}
+  \includegraphics[width=0.62\textwidth,max width=\textwidth]{images/image70.png}
   \caption{\textit{\textbf{Figure 5.15.} Continuous-improvement loop: correction capture, periodic retraining, evaluation and promotion, and inference auditability run in parallel with daily production inference.}}
   \label{fig:image70}
 \end{figure}

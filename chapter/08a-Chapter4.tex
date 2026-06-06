@@ -16,7 +16,7 @@ The hybrid Python and Power Automate architecture was selected after two failed 
 \begin{table}[H]
   \centering
   \caption{Adopted technology stack: component, selection, and implementation rationale}
-  \renewcommand{\arraystretch}{1.3}
+  \renewcommand{\arraystretch}{1.15}
   \begin{tabularx}{\textwidth}{|X|X|X|}
     \hline
     \textbf{Component} & \textbf{Selected Technology} & \textbf{Rationale} \\ \hline
@@ -32,7 +32,7 @@ The global SENTINEL Fleet architecture implementing this stack is shown in Figur
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.85\textwidth,max width=\textwidth]{images/image36.png}
+  \includegraphics[width=0.62\textwidth,max width=\textwidth]{images/image36.png}
   \caption{Global SENTINEL Fleet Architecture Overview}
   \label{fig:image36}
 \end{figure}
@@ -43,7 +43,7 @@ The email\_listener.py module is the entry point for the event-driven agents. It
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.85\textwidth,max width=\textwidth]{images/image37.png}
+  \includegraphics[width=0.62\textwidth,max width=\textwidth]{images/image37.png}
   \caption{Email Listener Live Execution: New POI Email Detected and Agent 1 Triggered}
   \label{fig:image37}
 \end{figure}
@@ -76,7 +76,7 @@ All three agents instantiate the same Exchange connection pattern. The corporate
 \begin{table}[H]
   \centering
   \caption{Five-stage execution skeleton shared by Agents 1 and 2}
-  \renewcommand{\arraystretch}{1.3}
+  \renewcommand{\arraystretch}{1.15}
   \begin{tabularx}{\textwidth}{|>{\raggedright\arraybackslash}p{2.3cm}|X|X|}
     \hline
     \textbf{Stage} & \textbf{Action} & \textbf{Implementation Detail} \\ \hline
@@ -106,7 +106,7 @@ auth_type=NTLM, retry_policy=FaultTolerance(max_wait=60) ) account = Account(MAI
 \begin{table}[H]
   \centering
   \caption{Cross-cutting operational concerns: credentials, proxy, SSL, logging, error handling}
-  \renewcommand{\arraystretch}{1.3}
+  \renewcommand{\arraystretch}{1.15}
   \begin{tabularx}{\textwidth}{|X|X|}
     \hline
     \textbf{Concern} & \textbf{Implementation} \\ \hline
@@ -125,7 +125,7 @@ Agent 1 (updatePOI.py) targets the FINOI folder. Its deployment topology is show
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.85\textwidth,max width=\textwidth]{images/image38.png}
+  \includegraphics[width=0.62\textwidth,max width=\textwidth]{images/image38.png}
   \caption{Agent 1 Deployment Architecture}
   \label{fig:image38}
 \end{figure}
@@ -155,7 +155,7 @@ The extraction engine applies six independent regex patterns to the email body. 
 \begin{table}[H]
   \centering
   \caption{Agent 1 six-field extraction patterns with implementation notes}
-  \renewcommand{\arraystretch}{1.3}
+  \renewcommand{\arraystretch}{1.15}
   \footnotesize
   \begin{tabularx}{\textwidth}{|X|X|X|X|X|}
     \hline
@@ -188,7 +188,7 @@ r"((PC
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.85\textwidth,max width=\textwidth]{images/image39.png}
+  \includegraphics[width=0.62\textwidth,max width=\textwidth]{images/image39.png}
   \caption{Agent 1 Execution Log: Field Extraction, Skip Decision, and Successful Flow Dispatch}
   \label{fig:image39}
 \end{figure}
@@ -200,7 +200,7 @@ Once all mandatory fields pass validation, the agent dispatches a seven-field JS
 \begin{table}[H]
   \centering
   \caption{Agent 1 Power Automate flow: seven-step execution sequence}
-  \renewcommand{\arraystretch}{1.3}
+  \renewcommand{\arraystretch}{1.15}
   \begin{tabularx}{\textwidth}{|>{\raggedright\arraybackslash}p{2.3cm}|X|}
     \hline
     \textbf{Step} & \textbf{Action} \\ \hline
@@ -216,7 +216,7 @@ Once all mandatory fields pass validation, the agent dispatches a seven-field JS
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.85\textwidth,max width=\textwidth]{images/image40.png}
+  \includegraphics[width=0.62\textwidth,max width=\textwidth]{images/image40.png}
   \caption{Agent 1 Power Automate Flow Logic}
   \label{fig:image40}
 \end{figure}
@@ -240,7 +240,7 @@ The Planner task output produced by the flow is shown in Figure 4.6. The task is
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.85\textwidth,max width=\textwidth]{images/image41.png}
+  \includegraphics[width=0.62\textwidth,max width=\textwidth]{images/image41.png}
   \caption{Planner Task Output Created by Agent 1}
   \label{fig:image41}
 \end{figure}
@@ -251,7 +251,7 @@ Agent 1 is accessible through the Guichet OI Automation Platform (Figure 4.7). T
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.85\textwidth,max width=\textwidth]{images/image42.png}
+  \includegraphics[width=0.62\textwidth,max width=\textwidth]{images/image42.png}
   \caption{Unified Platform: Agent 1 POI Email Processor Control Page}
   \label{fig:image42}
 \end{figure}
@@ -263,7 +263,7 @@ Agent 2 (updateretour.py) targets the \_retour CAFF GEDAFFAIRES folder. Table 4.
 \begin{table}[H]
   \centering
   \caption{Pre-automation CAFF return failure modes eliminated by Agent 2}
-  \renewcommand{\arraystretch}{1.3}
+  \renewcommand{\arraystretch}{1.15}
   \begin{tabularx}{\textwidth}{|X|X|}
     \hline
     \textbf{Failure Mode} & \textbf{Operational Impact} \\ \hline
@@ -275,7 +275,7 @@ Agent 2 (updateretour.py) targets the \_retour CAFF GEDAFFAIRES folder. Table 4.
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.85\textwidth,max width=\textwidth]{images/image43.png}
+  \includegraphics[width=0.62\textwidth,max width=\textwidth]{images/image43.png}
   \caption{Agent 2 Deployment Architecture}
   \label{fig:image43}
 \end{figure}
@@ -308,7 +308,7 @@ Figure 4.9 shows Agent 2 processing a live CAFF return. The folder contains 247 
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.85\textwidth,max width=\textwidth]{images/image44.png}
+  \includegraphics[width=0.62\textwidth,max width=\textwidth]{images/image44.png}
   \caption{Agent 2 Execution Log: OEIE Extraction and Atomic Flow Dispatch}
   \label{fig:image44}
 \end{figure}
@@ -317,7 +317,7 @@ Figure 4.9 shows Agent 2 processing a live CAFF return. The folder contains 247 
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.85\textwidth,max width=\textwidth]{images/image45.png}
+  \includegraphics[width=0.62\textwidth,max width=\textwidth]{images/image45.png}
   \caption{Agent 2 Power Automate Flow Logic}
   \label{fig:image45}
 \end{figure}
@@ -326,7 +326,7 @@ On completion of the Power Automate flow, the assigned consultant receives an im
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.85\textwidth,max width=\textwidth]{images/image46.png}
+  \includegraphics[width=0.62\textwidth,max width=\textwidth]{images/image46.png}
   \caption{Consultant Notification Email Generated by Agents}
   \label{fig:image46}
 \end{figure}
@@ -335,7 +335,7 @@ On completion of the Power Automate flow, the assigned consultant receives an im
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.85\textwidth,max width=\textwidth]{images/image47.png}
+  \includegraphics[width=0.62\textwidth,max width=\textwidth]{images/image47.png}
   \caption{Unified Platform: Agent 2 CAFF Return Processor Control Page}
   \label{fig:image47}
 \end{figure}
@@ -346,7 +346,7 @@ Agent 3 (updating.py) is architecturally distinct from Agents 1 and 2. Its stimu
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.85\textwidth,max width=\textwidth]{images/image48.png}
+  \includegraphics[width=0.62\textwidth,max width=\textwidth]{images/image48.png}
   \caption{Agent 3 System Architecture}
   \label{fig:image48}
 \end{figure}
@@ -356,7 +356,7 @@ Agent 3 (updating.py) is architecturally distinct from Agents 1 and 2. Its stimu
 \begin{table}[H]
   \centering
   \caption{Agent 3 input file schemas and roles}
-  \renewcommand{\arraystretch}{1.3}
+  \renewcommand{\arraystretch}{1.15}
   \begin{tabularx}{\textwidth}{|X|X|}
     \hline
     \textbf{Input File} & \textbf{Content and Role} \\ \hline
@@ -368,21 +368,21 @@ Agent 3 (updating.py) is architecturally distinct from Agents 1 and 2. Its stimu
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.85\textwidth,max width=\textwidth]{images/image49.png}
+  \includegraphics[width=0.62\textwidth,max width=\textwidth]{images/image49.png}
   \caption{Full PAR France Input Workbook: Column Structure and Representative Rows}
   \label{fig:image49}
 \end{figure}
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.85\textwidth,max width=\textwidth]{images/image50.png}
+  \includegraphics[width=0.62\textwidth,max width=\textwidth]{images/image50.png}
   \caption{Planner 1: Gestion de Projet PAR Export (English Column Format)}
   \label{fig:image50}
 \end{figure}
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.85\textwidth,max width=\textwidth]{images/image51.png}
+  \includegraphics[width=0.62\textwidth,max width=\textwidth]{images/image51.png}
   \caption{Planner 2: Guichet OI Orange Export (French Columns, M365 UUID Assigned To)}
   \label{fig:image51}
 \end{figure}
@@ -402,7 +402,7 @@ Step 3 applies the classification rules documented in Table 4.8 to each row.
 \begin{table}[H]
   \centering
   \caption{Request type classification rules applied in Step 3}
-  \renewcommand{\arraystretch}{1.3}
+  \renewcommand{\arraystretch}{1.15}
   \footnotesize
   \begin{tabularx}{\textwidth}{|X|X|X|X|}
     \hline
@@ -443,7 +443,7 @@ Step 4 routes Nouvelle Demande rows using the round-robin algorithm shown in Fig
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.85\textwidth,max width=\textwidth]{images/image52.png}
+  \includegraphics[width=0.62\textwidth,max width=\textwidth]{images/image52.png}
   \caption{Round-Robin Algorithm with Persistent State}
   \label{fig:image52}
 \end{figure}
@@ -451,7 +451,7 @@ Step 4 routes Nouvelle Demande rows using the round-robin algorithm shown in Fig
 \begin{table}[H]
   \centering
   \caption{SUIVI lookup outcomes and routing decisions}
-  \renewcommand{\arraystretch}{1.3}
+  \renewcommand{\arraystretch}{1.15}
   \begin{tabularx}{\textwidth}{|X|X|}
     \hline
     \textbf{Lookup Outcome} & \textbf{Routing Decision} \\ \hline
@@ -465,7 +465,7 @@ Step 4 routes Nouvelle Demande rows using the round-robin algorithm shown in Fig
 \begin{table}[H]
   \centering
   \caption{Priority and deadline assigned by request type}
-  \renewcommand{\arraystretch}{1.3}
+  \renewcommand{\arraystretch}{1.15}
   \begin{tabularx}{\textwidth}{|X|X|X|}
     \hline
     \textbf{Request Type} & \textbf{Priority} & \textbf{Deadline} \\ \hline
@@ -504,7 +504,7 @@ Step 5 produces a formatted three-sheet Excel workbook using openpyxl. Sheet 1 (
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.85\textwidth,max width=\textwidth]{images/image53.png}
+  \includegraphics[width=0.62\textwidth,max width=\textwidth]{images/image53.png}
   \caption{Agent 3 Power Automate Flow Logic}
   \label{fig:image53}
 \end{figure}
@@ -538,7 +538,7 @@ Agent 3 is operated through a standalone Python tkinter application (updating UI
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.85\textwidth,max width=\textwidth]{images/image54.png}
+  \includegraphics[width=0.62\textwidth,max width=\textwidth]{images/image54.png}
   \caption{Guichet OI Agent 3 Desktop UI. Three file inputs (Full PAR France, Planner 1, Planner 2), optional output path, round-robin state dropdown, and execution journal panel.}
   \label{fig:image54}
 \end{figure}
@@ -549,7 +549,7 @@ The Unified Platform frontend (guichet-oi-platform) was served locally throughou
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.85\textwidth,max width=\textwidth]{images/image55.png}
+  \includegraphics[width=0.62\textwidth,max width=\textwidth]{images/image55.png}
   \caption{Angular Platform Local Build: ng serve Bundle Output}
   \label{fig:image55}
 \end{figure}
@@ -561,7 +561,7 @@ Validation was conducted over two weeks against the live Orange Exchange environ
 \begin{table}[H]
   \centering
   \caption{Fleet-level performance results against Chapter 3 \S{}3.1.2 targets}
-  \renewcommand{\arraystretch}{1.3}
+  \renewcommand{\arraystretch}{1.15}
   \footnotesize
   \begin{tabularx}{\textwidth}{|>{\raggedright\arraybackslash}p{2.3cm}|X|X|X|X|}
     \hline

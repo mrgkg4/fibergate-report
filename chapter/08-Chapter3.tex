@@ -18,7 +18,7 @@ Requirements were elicited through two structured workshops held at the Guichet 
 \begin{table}[H]
   \centering
   \caption{Functional requirements by component and priority}
-  \renewcommand{\arraystretch}{1.3}
+  \renewcommand{\arraystretch}{1.15}
   \footnotesize
   \begin{tabularx}{\textwidth}{|>{\raggedright\arraybackslash}p{2.3cm}|X|X|X|}
     \hline
@@ -28,7 +28,7 @@ Requirements were elicited through two structured workshops held at the Guichet 
     FR-03 & Agent 2 & Automatically process CAFF return emails and assign the identified OEIE to the responsible consultant atomically via Power Automate & Must \\ \hline
     FR-04 & Agent 3 & Distribute PAR France dossiers across OSA consultants using a continuity-first round-robin algorithm with persistent index state & Must \\ \hline
     FR-05 & AI Service & Classify uploaded dossier pages into six document categories with per-class confidence score output & Must \\ \hline
-    FR-06 & AI Service & Extract thirteen structured fields from classified documents using BIO sequence tagging & Must \\ \hline
+    FR-06 & AI Service & Extract twelve structured fields from classified documents using BIO sequence tagging (twenty-five-label BIO space) & Must \\ \hline
     FR-07 & AI Service & Apply LOC PAR completeness rules and generate a pre-filled 27-column CMS Excel file from extracted fields & Should \\ \hline
     FR-08 & Platform & Enforce role-based access control across Consultant, Pilot, and SDM roles at both route and API levels & Must \\ \hline
     FR-09 & Platform & Provide a real-time agent execution monitoring dashboard with live log streaming and job status polling & Should \\ \hline
@@ -42,7 +42,7 @@ Requirements were elicited through two structured workshops held at the Guichet 
 \begin{table}[H]
   \centering
   \caption{Non-functional requirements by quality category}
-  \renewcommand{\arraystretch}{1.3}
+  \renewcommand{\arraystretch}{1.15}
   \begin{tabularx}{\textwidth}{|X|X|X|}
     \hline
     \textbf{Category} & \textbf{Requirement} & \textbf{Target} \\ \hline
@@ -66,7 +66,7 @@ The following constraints are non-negotiable design boundaries derived from the 
 \begin{table}[H]
   \centering
   \caption{Hard technical constraints and their architectural implications}
-  \renewcommand{\arraystretch}{1.3}
+  \renewcommand{\arraystretch}{1.15}
   \begin{tabularx}{\textwidth}{|X|X|X|}
     \hline
     \textbf{Constraint} & \textbf{Source} & \textbf{Architectural Implication} \\ \hline
@@ -86,7 +86,7 @@ The following risk register records the five highest-priority risks identified d
 \begin{table}[H]
   \centering
   \caption{Risk register: five highest-priority design risks}
-  \renewcommand{\arraystretch}{1.3}
+  \renewcommand{\arraystretch}{1.15}
   \footnotesize
   \begin{tabularx}{\textwidth}{|X|X|X|X|}
     \hline
@@ -107,7 +107,7 @@ The to-be process model was constructed by mapping each identified bottleneck to
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.85\textwidth,max width=\textwidth]{images/image18.png}
+  \includegraphics[width=0.62\textwidth,max width=\textwidth]{images/image18.png}
   \caption{BPMN to-be process model showing automated POI validation, CAFF returns, and distribution flows, with residual human touchpoints confined to review, correction, and high-level supervision.}
   \label{fig:image18}
 \end{figure}
@@ -126,7 +126,7 @@ The FiberGate Ecosystem is structured as three vertically integrated pillars arr
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.85\textwidth,max width=\textwidth]{images/image19.png}
+  \includegraphics[width=0.62\textwidth,max width=\textwidth]{images/image19.png}
   \caption{FiberGate Ecosystem three-pillar architecture. The Automation Layer handles event-driven and batch workflows; the Intelligence Layer provides multimodal document understanding; the Governance Layer provides the unified operational interface and control plane.}
   \label{fig:image19}
 \end{figure}
@@ -138,7 +138,7 @@ The ecosystem deliberately employs a hybrid processing model, because the operat
 \begin{table}[H]
   \centering
   \caption{Processing paradigm and human touchpoints by ecosystem component}
-  \renewcommand{\arraystretch}{1.3}
+  \renewcommand{\arraystretch}{1.15}
   \footnotesize
   \begin{tabularx}{\textwidth}{|X|X|X|X|}
     \hline
@@ -157,7 +157,7 @@ All inter-component communication is conducted over authenticated HTTPS. No comp
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.85\textwidth,max width=\textwidth]{images/image20.png}
+  \includegraphics[width=0.62\textwidth,max width=\textwidth]{images/image20.png}
   \caption{Data flow diagram showing all authenticated communication paths across SENTINEL Fleet, FiberGate AI Service, Unified Platform, and external systems. Protocol labels and data direction are annotated on each edge.}
   \label{fig:image20}
 \end{figure}
@@ -166,11 +166,11 @@ All inter-component communication is conducted over authenticated HTTPS. No comp
 
 \subsection{Cloud Hosting Strategy and Resource Architecture}
 
-All FiberGate components are hosted within a single Azure Virtual Network inside the Mantu Group subscription. The application tier hosts three compute resources: an App Service running the Spring Boot backend, an App Service running the FastAPI agent server, and an Azure Static Web App serving the Angular SPA via CDN. The AI inference VM is placed in the application subnet but assigned a private IP exclusively, making it unreachable from the public internet. The data tier is confined to a separate subnet and accessed exclusively through private endpoints, ensuring that Azure SQL and Blob Storage have zero public internet exposure.
+All FiberGate components are hosted within a single Azure Virtual Network inside the Mantu Group subscription. The application tier hosts three compute resources: an App Service running the Spring Boot backend, an App Service running the FastAPI agent server, and an Azure Static Web App serving the Angular SPA via CDN. The AI inference VM is placed in the application subnet but assigned a private IP exclusively, making it unreachable from the public internet. The data tier is confined to a separate subnet and accessed exclusively through private endpoints, ensuring that the database and Blob Storage have zero public internet exposure. The design presented here reflects the target architecture defined during the Design phase; during implementation the compute and data tiers were consolidated onto Azure Container Apps and a managed PostgreSQL instance for the reasons set out at the start of Section~6.4.
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.85\textwidth,max width=\textwidth]{images/image21.png}
+  \includegraphics[width=0.62\textwidth,max width=\textwidth]{images/image21.png}
   \caption{Azure hosting architecture showing App Services, AI inference VM, SQL Database, Blob Storage, CI/CD pipeline (GitHub, GitHub Actions, Azure DevOps), and M365 tenant boundaries.}
   \label{fig:image21}
 \end{figure}
@@ -181,7 +181,7 @@ The NSG on the VNet boundary enforces an ingress-allow rule on port 443 only, de
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.85\textwidth,max width=\textwidth]{images/image22.png}
+  \includegraphics[width=0.62\textwidth,max width=\textwidth]{images/image22.png}
   \caption{Azure VNet topology with subnet segmentation (application: 10.0.1.0/24, data: 10.0.2.0/24), NSG allow/deny rules at the boundary, private endpoints for SQL and Blob, auto-scale policy for Spring Boot, and VNet peering to the AI VM.}
   \label{fig:image22}
 \end{figure}
@@ -212,14 +212,14 @@ The FiberGate AI Service implements a five-stage pipeline that transforms a raw 
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.85\textwidth,max width=\textwidth]{images/image23.png}
+  \includegraphics[width=0.62\textwidth,max width=\textwidth]{images/image23.png}
   \caption{Five-stage pipeline from document upload to CMS Excel output. Stages 1 to 3 (Preprocessing, Classifier, Extractor) are neural; stages 4 and 5 (Completeness Engine, CMS Generator) are deterministic rule engines. The confidence gate at stage 3 determines whether field values are auto-drafted or routed to manual review.}
   \label{fig:image23}
 \end{figure}
 
 \subsection{Dataset Strategy and Field Extraction Workflow}
 
-The training corpus was assembled from historical PAR dossiers collected over nine months of operational activity, covering the six document categories present in the LOC PAR workflow: authorisation permit, information sheet, mass plan, situation plan, technical certificate, and mandate. Documents were annotated at the token level using BIO tagging across thirteen field types defined in consultation with the SDM and senior OSA consultants. Dataset imbalance across document classes was addressed through class-weighted loss during fine-tuning.
+The training corpus was assembled from historical PAR dossiers collected over nine months of operational activity, covering the six document categories present in the LOC PAR workflow: authorisation permit, information sheet, mass plan, situation plan, technical certificate, and mandate. Documents were annotated at the token level using BIO tagging across twelve field types (a twenty-five-label BIO space) defined in consultation with the SDM and senior OSA consultants. Dataset imbalance across document classes was addressed through class-weighted loss during fine-tuning.
 
 The confidence gate was empirically calibrated on the validation partition. Fields whose extraction head produces a per-token confidence below 0.60 or whose span-level F1 falls below 0.70 are written to the CMS output with a visual flag indicating mandatory consultant review. This gate ensures that the AI Service fails explicitly and visibly rather than silently, preserving the trust relationship between the system and its users that is essential for adoption in a regulated operational context.
 
@@ -232,7 +232,7 @@ The Unified Platform replaces the fragmented nine-tool interface with a single a
 \begin{table}[H]
   \centering
   \caption{Unified Platform functional modules by primary actor}
-  \renewcommand{\arraystretch}{1.3}
+  \renewcommand{\arraystretch}{1.15}
   \begin{tabularx}{\textwidth}{|X|X|X|}
     \hline
     \textbf{Module} & \textbf{Primary Actor} & \textbf{Key Capabilities} \\ \hline
@@ -257,7 +257,7 @@ The Spring Boot backend acts as the single integration hub for all external syst
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.85\textwidth,max width=\textwidth]{images/image24.png}
+  \includegraphics[width=0.62\textwidth,max width=\textwidth]{images/image24.png}
   \caption{Platform integration architecture showing API contract boundaries between Angular frontend, Spring Boot backend, FastAPI proxy, AI Service, Azure SQL, and the M365 Power Automate layer triggered exclusively by SENTINEL agents.}
   \label{fig:image24}
 \end{figure}
@@ -272,7 +272,7 @@ The global use case diagram captures all actor-system interactions across the th
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.85\textwidth,max width=\textwidth]{images/image25.png}
+  \includegraphics[width=0.62\textwidth,max width=\textwidth]{images/image25.png}
   \caption{Global use case diagram showing all three actor roles (Consultant, Pilot, SDM) and their interactions across Unified Platform use cases, alongside autonomous SENTINEL agent processes triggered by the Exchange Server.}
   \label{fig:image25}
 \end{figure}
@@ -283,7 +283,7 @@ The email listener sequence models the shared orchestration pattern common to Ag
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.85\textwidth,max width=\textwidth]{images/image26.png}
+  \includegraphics[width=0.62\textwidth,max width=\textwidth]{images/image26.png}
   \caption{Sequence diagram for the shared email listener and event-driven agent orchestration pattern. HTTP 202 is returned immediately on trigger; the platform polls via job UUID for completion and structured log retrieval.}
   \label{fig:image26}
 \end{figure}
@@ -294,21 +294,21 @@ The three agent sequence diagrams specify per-agent workflows in detail, includi
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.85\textwidth,max width=\textwidth]{images/image27.png}
+  \includegraphics[width=0.62\textwidth,max width=\textwidth]{images/image27.png}
   \caption{Agent 1 sequence showing Exchange FINOI folder polling, six-field regex extraction with anticipation-row skip logic, Power Automate SUIVI lookup and Planner task creation in the POI alerte bucket.}
   \label{fig:image27}
 \end{figure}
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.85\textwidth,max width=\textwidth]{images/image28.png}
+  \includegraphics[width=0.62\textwidth,max width=\textwidth]{images/image28.png}
   \caption{Agent 2 sequence showing \_retour CAFF folder polling, OEIE pattern matching on the email subject line, and atomic Power Automate flow execution combining SUIVI lookup, assignment update, and Planner task creation.}
   \label{fig:image28}
 \end{figure}
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.85\textwidth,max width=\textwidth]{images/image29.png}
+  \includegraphics[width=0.62\textwidth,max width=\textwidth]{images/image29.png}
   \caption{Agent 3 sequence showing the six-step pandas processing pipeline, three-sheet workbook generation, Pilot review gate, and per-task webhook dispatch loop with mandatory 2-second inter-call delay.}
   \label{fig:image29}
 \end{figure}
@@ -319,7 +319,7 @@ The AI Service sequence diagram models the full inference pipeline from dossier 
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.85\textwidth,max width=\textwidth]{images/image30.png}
+  \includegraphics[width=0.62\textwidth,max width=\textwidth]{images/image30.png}
   \caption{Sequence diagram for the AI Service five-stage inference pipeline.}
   \label{fig:image30}
 \end{figure}
@@ -330,14 +330,14 @@ The Unified Platform use case diagram annotates each use case with its RBAC acce
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.85\textwidth,max width=\textwidth]{images/image31.png}
+  \includegraphics[width=0.62\textwidth,max width=\textwidth]{images/image31.png}
   \caption{Unified Platform use case diagram partitioned into four RBAC zones: All Roles (authentication), Consultant, Pilot and SDM, and SDM-only. Each zone is colour-coded to match the actor hierarchy.}
   \label{fig:image31}
 \end{figure}
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.85\textwidth,max width=\textwidth]{images/image32.png}
+  \includegraphics[width=0.62\textwidth,max width=\textwidth]{images/image32.png}
   \caption{Sequence diagrams for four representative scenarios: (1) Consultant dossier upload and AI review, (2) Pilot Agent 3 distribution trigger and workbook download, (3) SDM audit trail query and CSV export, and (4) SDM manual agent trigger with live log streaming. Lower panel: functional module summary by role.}
   \label{fig:image32}
 \end{figure}
@@ -348,14 +348,14 @@ The domain class diagram specifies all persistent entities, their attributes, an
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.85\textwidth,max width=\textwidth]{images/image33.png}
+  \includegraphics[width=0.62\textwidth,max width=\textwidth]{images/image33.png}
   \caption{Domain class diagram covering User, Role, AgentJob, InferenceResult, ExtractedField, AuditEntry, and DistributionRun entities. AuditEntry is insert-only. ExtractedField.correctedValue feeds the AI continuous improvement loop.}
   \label{fig:image33}
 \end{figure}
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.85\textwidth,max width=\textwidth]{images/image34.png}
+  \includegraphics[width=0.62\textwidth,max width=\textwidth]{images/image34.png}
   \caption{Component diagram showing Angular, Spring Boot, FastAPI, AI Service, Azure SQL, and Blob Storage with provided/required interfaces. Seven architectural principles are annotated: stateless backend, single integration hub, async polling, inference isolation, private data access, graceful degradation, and independent deployability.}
   \label{fig:image34}
 \end{figure}
@@ -366,7 +366,7 @@ The ecosystem deployment diagram maps all runtime artefacts to their physical or
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.85\textwidth,max width=\textwidth]{images/image35.png}
+  \includegraphics[width=0.62\textwidth,max width=\textwidth]{images/image35.png}
   \caption{Deployment diagram showing all FiberGate artefacts within the Azure VNet (App Services, AI VM, SQL, Blob), the GitHub GitHub Actions Azure DevOps CI/CD pipeline, and M365 tenant (Power Automate, Exchange Server) integration boundaries.}
   \label{fig:image35}
 \end{figure}

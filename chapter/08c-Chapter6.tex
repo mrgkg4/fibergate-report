@@ -27,7 +27,7 @@ The Spring Boot backend also acts as a security boundary. Every request from the
 
 \subsection{Frontend Architecture and Implementation (Angular)}
 
-The frontend is an Angular 21 SPA served on port 4200. It follows a component-driven architecture in which each functional module is an independently routed Angular module with its own component tree, services, and route guards. The modules are the authentication screens, the operator dashboard, the automation control panels, the AI results review interface, and the administration console.
+The frontend is an Angular 17 SPA served on port 4200. It follows a component-driven architecture in which each functional module is an independently routed Angular module with its own component tree, services, and route guards. The modules are the authentication screens, the operator dashboard, the automation control panels, the AI results review interface, and the administration console.
 
 Application state is managed through Angular services using RxJS observables, which allows the dashboard panels to update in response to job-status changes without requiring constant polling. HTTP communication is handled by a dedicated API service layer that attaches the JWT bearer token to every outgoing request through an Angular HTTP interceptor. Route guards enforce role-based access at the navigation level by redirecting users who attempt to reach a module that their role does not permit before any server request is made.
 
@@ -37,7 +37,7 @@ The user interface was designed using high-fidelity Figma prototypes before any 
 
 The REST API is organised around three categories of resources. Identity and session resources are served under `/api/auth/\textbf{`. Business resources such as jobs, dossiers, and users are served under `/api/jobs/}`, `/api/dossiers/\textbf{`, and `/api/users/}`. Administration resources are served under `/api/admin/\textbf{` and `/api/audit/}`. All endpoints follow standard HTTP verb conventions: GET for read operations, POST for job submissions and resource creation, PUT and PATCH for updates, and DELETE for soft-deletes that preserve the audit record.
 
-The service integration layer is responsible for decoupling the Angular frontend from the execution backends. When a Pilote submits a distribution batch through the interface, the Angular client sends a POST request to `/api/jobs/distribution` on the Spring Boot layer. Spring Boot validates the request, writes a job record to the database, and forwards the payload asynchronously to the FastAPI endpoint at `http://localhost:8000/run/distribution`. FastAPI starts a background task, assigns it a UUID identifier, and immediately returns that identifier to Spring Boot. Spring Boot stores the UUID and exposes a polling endpoint at `/api/jobs/\{id\}/status` so the dashboard can check progress without keeping an open HTTP connection. This non-blocking design prevents long-running automation tasks from blocking the user interface or timing out at the load balancer. The distribution engine, for example, can take up to three minutes and forty seconds to process a batch of 112 tasks.
+The service integration layer is responsible for decoupling the Angular frontend from the execution backends. When a Pilot submits a distribution batch through the interface, the Angular client sends a POST request to `/api/jobs/distribution` on the Spring Boot layer. Spring Boot validates the request, writes a job record to the database, and forwards the payload asynchronously to the FastAPI endpoint at `http://localhost:8000/run/distribution`. FastAPI starts a background task, assigns it a UUID identifier, and immediately returns that identifier to Spring Boot. Spring Boot stores the UUID and exposes a polling endpoint at `/api/jobs/\{id\}/status` so the dashboard can check progress without keeping an open HTTP connection. This non-blocking design prevents long-running automation tasks from blocking the user interface or timing out at the load balancer. The distribution engine, for example, can take up to three minutes and forty seconds to process a batch of 112 tasks.
 
 \subsection{Relational Database Architecture and Schema Design}
 
@@ -71,15 +71,15 @@ Role assignments are enforced at three levels. The Angular route guard prevents 
 
 \subsection{Automation Monitoring and Control Dashboard}
 
-The automation dashboard is the main interface for Pilote users. It presents one control panel per SENTINEL agent. Each panel shows the current job status, a form for submitting a new job, and a live log view that displays the output of the running agent as it is produced by the FastAPI job store.
+The automation dashboard is the main interface for Pilot users. It presents one control panel per SENTINEL agent. Each panel shows the current job status, a form for submitting a new job, and a live log view that displays the output of the running agent as it is produced by the FastAPI job store.
 
 The POI validation panel (Agent 1) shows the status of the most recent Agilis mail processing run, including the number of emails scanned, the fields extracted from each email, and the SUIVI rows and Planner tasks that were created. The CAFF returns panel (Agent 2) shows the most recent GedAffaire mail that was processed and the routing outcome. The distribution panel (Agent 3) provides a file upload area for the daily Full PAR France Excel batch, a progress indicator broken down by demand type (RAR, Nouvelle, Retour, and Go), and a download link for the colour-coded output workbook when the run is complete.
 
-A summary bar at the top of the dashboard shows the day's job counts, success rates, and total processing time across all three agents, giving the Pilote an overview of the unit's operational status without opening each panel individually.
+A summary bar at the top of the dashboard shows the day's job counts, success rates, and total processing time across all three agents, giving the Pilot an overview of the unit's operational status without opening each panel individually.
 
 \subsection{AI Service Interaction and Results Management Interface}
 
-The AI results interface is the primary workspace for Consultant users. When a dossier is submitted for AI analysis, the FiberGate AI Service classifies each attached document and extracts the twelve target fields. The results are shown to the consultant in a structured review form. For each field, the form displays the extracted value, a colour-coded confidence indicator (green for high confidence, amber for medium confidence, and red for fields below the confidence threshold or with an F1 score of zero in the deployed model), and an editable input for corrections.
+The AI results interface is the primary workspace for Consultant users. When a dossier is submitted for AI analysis, the FiberGate AI Service classifies each attached document (87.7\% accuracy) and extracts the twelve target fields at the per-field reliability reported in Table 5.10. The results are shown to the consultant in a structured review form. For each field, the form displays the extracted value, a colour-coded confidence indicator (green for high confidence, amber for medium confidence, and red for fields below the confidence threshold or with an F1 score of zero in the deployed model), and an editable input for corrections.
 
 The completeness verdict produced by the rule-based recommendation engine appears at the top of the form as either DEMANDE COMPLETE or DEMANDE INCOMPLETE, together with the list of fields that caused the verdict. The consultant can confirm the verdict, override it with a written justification, or request a new analysis if a document has been misclassified.
 
@@ -103,11 +103,11 @@ The Spring Boot security filter chain processes every incoming request before it
 
 \subsection{Role-Based Access Control Implementation}
 
-The platform defines three roles that correspond directly to the three operational actors in the Guichet OI unit.
+Three roles are defined, corresponding directly to the three operational actors in the Guichet OI unit.
 
 The Consultant role provides access to the AI results review interface, the dossier queue, and the user's own correction history. Consultants cannot access the automation control panels, the user administration module, or the audit logs.
 
-The Pilote role extends Consultant access to include the automation monitoring and control dashboard and the distribution file upload interface. Pilotes can view aggregate job statistics for the team but cannot access individual audit records or manage users.
+The Pilot role extends Consultant access to include the automation monitoring and control dashboard and the distribution file upload interface. Pilots can view aggregate job statistics for the team but cannot access individual audit records or manage users.
 
 The SDM role provides full access to all modules, including user provisioning, role assignment, the complete audit trail, and system configuration.
 
@@ -128,6 +128,8 @@ Retention policy: field correction records used for AI retraining are pseudonymi
 \bigskip
 
 \section{Azure Cloud Deployment}
+
+The deployment target evolved between the Design and Development phases. The architecture specified in Section~3.4 assumed virtual-machine and Azure App Service hosting with an Azure SQL database and a dedicated inference VM. During implementation this was revised in favour of a fully containerised topology for three reasons: packaging each tier as a Docker image removed environment drift between the development, staging, and production slots; Azure Container Apps provides scale-to-zero and per-revision blue-green rollback that App Service plans did not offer within the shared Mantu subscription; and a managed PostgreSQL Flexible Server matched the platform's open-source persistence stack while remaining reachable only through a private endpoint. The as-built infrastructure described below therefore supersedes the target design of Section~3.4.
 
 The FiberGate platform is deployed on Microsoft Azure. Azure Container Apps serves as the primary compute layer and Microsoft Entra ID provides the identity plane. Each application tier runs in a dedicated container, with Azure Blob Storage holding persistent artefacts and a managed PostgreSQL instance holding the relational data.
 
@@ -205,7 +207,7 @@ The three SENTINEL agents, Agent 1 for POI validation, Agent 2 for CAFF returns,
 
 The Angular frontend never communicates directly with FastAPI. All browser requests pass through Spring Boot, which verifies authentication and authorisation before forwarding to the execution tier. FastAPI therefore operates entirely within the trusted internal network and does not require its own authentication mechanism.
 
-The FastAPI execution tier also captures the standard output and error output of each agent run and makes it available through the job store endpoint. This allows the Angular dashboard to display live logs to the Pilote during agent execution.
+The FastAPI execution tier also captures the standard output and error output of each agent run and makes it available through the job store endpoint. This allows the Angular dashboard to display live logs to the Pilot during agent execution.
 
 \subsection{FiberGate AI Service Integration and Result Consumption}
 
@@ -227,7 +229,7 @@ Microsoft Graph API calls handle lower-frequency integrations that require more 
 
 The integrations described above form a complete automated workflow for the LOC PAR demand lifecycle.
 
-When a new PAR connection request arrives, the Agilis system sends a confirmation email to the shared mailbox. Agent 1 detects the email during its polling cycle, extracts six fields (AS, OEIE, Affaire, Etablissement, PC code, and type\_demande\_POI), and triggers the Power Automate flow that updates SUIVI and creates the Planner task. Separately, the Pilote uploads the daily Full PAR France distribution file through the distribution panel, which starts Agent 3. Agent 3 classifies the 112 active files by demand type, assigns them to consultants using a round-robin method that preserves continuity for ongoing dossiers, and sends 112 individual Planner tasks through Power Automate in under four minutes.
+When a new PAR connection request arrives, the Agilis system sends a confirmation email to the shared mailbox. Agent 1 detects the email during its polling cycle, extracts six fields (AS, OEIE, Affaire, Etablissement, PC code, and type\_demande\_POI), and triggers the Power Automate flow that updates SUIVI and creates the Planner task. Separately, the Pilot uploads the daily Full PAR France distribution file through the distribution panel, which starts Agent 3. Agent 3 classifies the 112 active files by demand type, assigns them to consultants using a round-robin method that preserves continuity for ongoing dossiers, and sends 112 individual Planner tasks through Power Automate in under four minutes.
 
 When a CAFF return arrives from GedAffaire, Agent 2 reads the most recent email, extracts the OEIE code, and routes the return to the assigned consultant in a single operation that creates a timestamped Planner task. This guarantees the 1-day KPI that was previously missed because of manual routing delays.
 
@@ -247,9 +249,9 @@ Integration tests verify behaviour across component boundaries. The Spring Boot 
 
 \subsection{User Acceptance Testing}
 
-User acceptance testing was conducted on the Staging environment with five participants: two Consultant-role users, two Pilote-role users, and the SDM. Each participant followed a structured test script covering their role's core workflows and recorded any problems encountered. Testing took place across two sessions of three hours each.
+User acceptance testing was conducted on the Staging environment with five participants: two Consultant-role users, two Pilot-role users, and the SDM. Each participant followed a structured test script covering their role's core workflows and recorded any problems encountered. Testing took place across two sessions of three hours each.
 
-The main outcomes of the testing sessions were the following. The confidence colour-coding in the AI results interface was understood without explanation by all five participants. The live log streaming in the automation panels was rated as particularly useful by both Pilote users, who previously had no way of seeing what an agent was doing while it ran. A usability problem was found in the distribution upload panel: users expected a drag-and-drop area but found only a file browser button. This was fixed before the production deployment by adding a drop zone with visual feedback. The SDM also requested an additional filter in the audit trail that would let users filter by resource type, such as dossier, user, or job. This filter was added as a dropdown before sign-off.
+The main outcomes of the testing sessions were the following. The confidence colour-coding in the AI results interface was understood without explanation by all five participants. The live log streaming in the automation panels was rated as particularly useful by both Pilot users, who previously had no way of seeing what an agent was doing while it ran. A usability problem was found in the distribution upload panel: users expected a drag-and-drop area but found only a file browser button. This was fixed before the production deployment by adding a drop zone with visual feedback. The SDM also requested an additional filter in the audit trail that would let users filter by resource type, such as dossier, user, or job. This filter was added as a dropdown before sign-off.
 
 All critical and high-priority issues found during user acceptance testing were resolved before the production promotion gate.
 
@@ -276,7 +278,7 @@ Table 6.1 summarises the measured performance of each automated workflow before 
 \begin{table}[H]
   \centering
   \caption{Operational improvement metrics by automated workflow.}
-  \renewcommand{\arraystretch}{1.3}
+  \renewcommand{\arraystretch}{1.15}
   \footnotesize
   \begin{tabularx}{\textwidth}{|X|X|X|X|X|}
     \hline
@@ -284,7 +286,7 @@ Table 6.1 summarises the measured performance of each automated workflow before 
     Agent 1: POI Validation & Agilis confirmation email & Python, exchangelib, Power Automate (7 steps) & 15 to 20 min / under 60 s & approximately 95\% \\ \hline
     Agent 2: CAFF Returns & GedAffaire mail & Python, exchangelib, atomic Power Automate flow & KPI missed / guaranteed & 100\% of misses eliminated \\ \hline
     Agent 3: Distribution & Daily Excel batch of 112 files & pandas, openpyxl, round-robin with Planner lookup & 30 to 45 min / under 2 min & approximately 95\% \\ \hline
-    FiberGate AI & PDF or PNG dossier & LayoutLMv3, Tesseract 5 OCR & Manual review / 89.5\% auto-classified & N/A \\ \hline
+    FiberGate AI & PDF or PNG dossier & LayoutLMv3, Tesseract 5 OCR & Manual review / 87.7\% class.\ accuracy, 0.448 span-F1 & review-assisted \\ \hline
   \end{tabularx}
 \end{table}
 
@@ -294,7 +296,7 @@ The CAFF returns workflow addresses both a quantitative and a qualitative proble
 
 \subsection{Time Reduction and Cost Savings Analysis}
 
-The Guichet OI unit employs fifteen consultants. Based on operational data collected during the proof-of-concept period, the average time to handle one file is forty-five minutes. The three automated workflows account for the following portions of that time. POI email processing takes approximately twenty minutes per affected file. CAFF return routing takes approximately ten minutes per return. Daily distribution takes between thirty and forty-five minutes in total for the Pilote, which is equivalent to between sixteen and twenty-four seconds per file.
+The Guichet OI unit employs fifteen consultants. Based on operational data collected during the proof-of-concept period, the average time to handle one file is forty-five minutes. The three automated workflows account for the following portions of that time. POI email processing takes approximately twenty minutes per affected file. CAFF return routing takes approximately ten minutes per return. Daily distribution takes between thirty and forty-five minutes in total for the Pilot, which is equivalent to between sixteen and twenty-four seconds per file.
 
 After automation, each of these tasks requires only a review and confirmation step, reducing the time per file to approximately two minutes.
 
@@ -306,7 +308,7 @@ The automation also changes the nature of the work consultants perform each day.
 
 The AI completeness review interface reduces the time spent on document validation. Instead of reading an entire dossier, the consultant reviews a pre-filled form and corrects only the fields where the model's confidence is low or where the extracted value is wrong. For well-structured dossiers where the model performs at the Strong tier, the per-dossier review time falls from an estimated fifteen minutes to approximately three to five minutes.
 
-User feedback from the acceptance testing sessions supports these observations. All five participants reported feeling more control over their workload. Both Pilote users noted that the live automation dashboard gave them operational visibility they had not had before.
+User feedback from the acceptance testing sessions supports these observations. All five participants reported feeling more control over their workload. Both Pilot users noted that the live automation dashboard gave them operational visibility they had not had before.
 
 \subsection{Strategic Value and Transferability of the FiberGate Blueprint}
 
@@ -322,7 +324,7 @@ Orange France has expressed interest in applying the FiberGate model to other DI
 
 The FiberGate platform in its current state has several limitations that define the scope of what it can do and indicate directions for future development.
 
-\textbf{Model performance on tabular fields.} As documented in Chapter 5, three field types, Nb\_log\_res, Nb\_log\_pro, and Nombre\_Logement\_Lot\_MacroLot, have a span-level F1 score of zero in the deployed extractor. The cause is the 512-token context window of LayoutLMv3, which cannot cover both the column header row and the target data cell when they appear in a dense table. Solving this problem requires either a model with a longer context window or a pre-processing step that identifies and isolates table regions before sending them to the model.
+\textbf{Model performance on tabular fields.} As documented in Chapter 5 (Table 5.10), three field types, Nb\_log\_res, Nb\_log\_pro, and Nombre\_Logement\_Lot\_MacroLot, have a span-level F1 score of zero in the deployed extractor. The cause is the 512-token context window of LayoutLMv3, which cannot cover both the column header row and the target data cell when they appear in a dense table. Solving this problem requires either a model with a longer context window or a pre-processing step that identifies and isolates table regions before sending them to the model.
 
 \textbf{OCR quality dependency.} The accuracy of the extraction pipeline is limited by the quality of Tesseract 5's OCR output. Documents with heavy stamping, low scan contrast, or significant page skew produce degraded tokens that introduce errors in the extractor. A future version should include a document pre-processing step covering deskewing, denoising, and contrast correction before OCR, and should evaluate a commercial OCR engine for documents that fall below a minimum quality threshold.
 
@@ -337,7 +339,7 @@ Future research directions for this work include: the use of few-shot prompting 
 \section*{Conclusion}
 \addcontentsline{toc}{section}{Conclusion}
 
-This chapter has documented the complete implementation of the FiberGate unified web platform and its connections to the SENTINEL automation fleet, the FiberGate AI Service, and the Microsoft 365 ecosystem. The three-tier architecture built with Angular, Spring Boot, and FastAPI provides a clear separation between the presentation, orchestration, and execution concerns. The JWT-based security model with role-based access control ensures that each actor, whether Consultant, Pilote, or SDM, operates within a well-defined permission boundary.
+This chapter has documented the complete implementation of the FiberGate unified web platform and its connections to the SENTINEL automation fleet, the FiberGate AI Service, and the Microsoft 365 ecosystem. The three-tier architecture built with Angular, Spring Boot, and FastAPI provides a clear separation between the presentation, orchestration, and execution concerns. The JWT-based security model with role-based access control ensures that each actor, whether Consultant, Pilot, or SDM, operates within a well-defined permission boundary.
 
 The platform is deployed on Microsoft Azure with a CI/CD pipeline that spans GitHub Actions and Azure DevOps. It uses blue-green releases, infrastructure-as-code provisioning, and automated rollback to maintain a reliable production service. The Microsoft 365 integration via Power Automate and the Graph API connects the platform to the SharePoint and Planner workflows that the Guichet OI team already uses, without requiring changes to their daily habits.
 
